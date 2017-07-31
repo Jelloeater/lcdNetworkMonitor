@@ -129,87 +129,28 @@ class LedStrip():
 
 class UpdateScreen():
     @staticmethod
-    def display_warning():
-        Screen.pulse_color(255, 255, 0)
-        # TODO Get Warnings + display
-        # sleep(GVars.LED_TIMEOUT)
-
-    @staticmethod
-    def display_error():
-        Screen.pulse_color(255, 0, 0)
-        # TODO Get Errors + display
-        # sleep(GVars.LED_TIMEOUT)
-
-    @staticmethod
-    def write_status_bar(count_var):
-
-        if GVars.LED_DAY_MODE is True:
+    def write_status_bar(line1,line2):
             lcd.set_cursor_position(0, 2)
-            lcd.write('WRN:' + str(count_var.get_warn_count()))
+            lcd.write(line1)
             lcd.set_cursor_position(9, 2)
-            lcd.write('ERR:' + str(count_var.get_error_count()))
-        else:
-            lcd.set_cursor_position(0, 2)
-            lcd.write('WRN ' + str(count_var.get_warn_count()))
-            lcd.set_cursor_position(9, 2)
-            lcd.write('ERR ' + str(count_var.get_error_count()))
-
-    @staticmethod
-    def update_idle_color(count_obj):
-        if count_obj.is_sensor_warn() is True and count_obj.is_sensor_down() is False:
+            lcd.write(line2)
             Screen.idle_warn()
-        if count_obj.is_sensor_down() is True:
             Screen.idle_error()
-        if count_obj.is_sensor_warn() is False and count_obj.is_sensor_down() is False:
             if GVars.LED_DAY_MODE is True:
                 Screen.idle()
             else:
                 Screen.change_color(0,0,0)
 
-
-
-class Count:
-    def __init__(self):
-        import requests
-        import xmltodict
-        r = requests.get('http://probe/api/gettreenodestats.xml',
-                         params={'username': 'prtgadmin', 'password': 'prtgadmin'})
-        self.data = xmltodict.parse(r.text)
-
-    def is_sensor_down(self):
-        return True if self.data['data']['downsens'] > 0 or self.data['data']['downsens'] is not None else False
-
-    def is_sensor_warn(self):
-        return True if self.data['data']['warnsens'] > 0 or self.data['data']['warnsens'] is not None else False
-
-    def get_error_count(self):
-        return int(self.data['data']['downsens']) if self.data['data']['downsens'] is not None else 0
-
-    def get_warn_count(self):
-        return int(self.data['data']['warnsens']) if self.data['data']['warnsens'] is not None else 0
-
-
-class ParseInfo():
-    """ Works with status info from server via JSON"""
-
-    def __init__(self):
-        import requests
-        import json
-        r = requests.get(
-            "http://probe/api/table.xml?content=sensors&filter_status=5&filter_status=4&&output=json&columns=group,device,sensor,status,message,lastvalue",
-            params={'username': 'prtgadmin', 'password': 'prtgadmin'})
-        self.sensor_info = json.loads(r.text)
+    @staticmethod
+    def ping_servers(object):
+        """ Args: object, Returns: """
+        pass
 
 
 def main_loop():
-    count_obj = Count()
-    UpdateScreen.write_status_bar(count_obj)
-    if GVars.LED_DAY_MODE is True:
-        if count_obj.is_sensor_warn() is True:
-            UpdateScreen.display_warning()
-        if count_obj.is_sensor_down() is True:
-            UpdateScreen.display_error()
-    UpdateScreen.update_idle_color(count_obj)
+
+    UpdateScreen.write_status_bar("hi","hello2")
+
 
     @touch.on(touch.CANCEL)
     def toggle_silence_alarm(ch, evt):
