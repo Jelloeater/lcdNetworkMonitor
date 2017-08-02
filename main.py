@@ -6,7 +6,7 @@ import sys
 import argparse
 from dothat import lcd, backlight
 import dothat.touch as touch
-
+import pyping
 
 class GVars():
     LED_RED = 0
@@ -49,19 +49,29 @@ class Screen():
         GVars.LED_GREEN = 0
         GVars.LED_BLUE = 0
         backlight.set_graph(0)
+        lcd.set_display_mode(enable=True,cursor=False,blink=False)
         lcd.set_contrast(45)
 
     @staticmethod
     def idle_warn():
-        Screen.change_color(75, 75, 0)
+        if GVars.LED_DAY_MODE is True:
+            Screen.change_color(200, 200, 0)
+        else:
+            Screen.change_color(120,120,0)
 
     @staticmethod
     def idle_error():
-        Screen.change_color(75, 0, 0)
+        if GVars.LED_DAY_MODE is True:
+            Screen.change_color(200, 0, 0)
+        else:
+            Screen.change_color(120,0,0)
 
     @staticmethod
     def idle():
-        Screen.change_color(75, 75, 75)
+        if GVars.LED_DAY_MODE is True:
+            Screen.change_color(75,75,75)
+        else:
+            Screen.change_color(0,0,0)
 
     @staticmethod
     def pulse_color(r_in, g_in, b_in, number_of_loops=2):
@@ -129,29 +139,45 @@ class LedStrip():
 
 class UpdateScreen():
     @staticmethod
-    def write_status_bar(line1,line2):
-            lcd.set_cursor_position(0, 2)
-            lcd.write(line1)
-            lcd.set_cursor_position(9, 2)
-            lcd.write(line2)
-            Screen.idle_warn()
-            Screen.idle_error()
-            if GVars.LED_DAY_MODE is True:
-                Screen.idle()
-            else:
-                Screen.change_color(0,0,0)
+    def write_status_bar():
+            lcd.set_cursor_position(0, 0)
+            lcd.write('Google')
+            lcd.set_cursor_position(10, 0)
+            lcd.write(ping_server('8.8.8.8'))
 
-    @staticmethod
-    def ping_servers(object):
-        """ Args: object, Returns: """
-        pass
+
+            lcd.set_cursor_position(0, 1)
+            lcd.write('Router')
+            lcd.set_cursor_position(10, 1)
+            lcd.write(ping_server('192.168.1.1'))
+
+
+            lcd.set_cursor_position(0, 2)
+            lcd.write('Fast.com')
+            lcd.set_cursor_position(10, 2)
+            lcd.write(ping_server('fast.com'))
+
+            Screen.idle()
+
+
+def ping_server(ip):
+    try:
+        p = pyping.ping(ip,count=2).avg_rtt[:-4] + '    '
+        try:
+            logging.debug(p)
+            int(p)
+            if p < 80:
+                Screen.idle_warn()
+        except:
+            pass
+    except:
+        Screen.idle_error()
+        p = 'ERROR '
+    return p
 
 
 def main_loop():
-
-    UpdateScreen.write_status_bar("hi","hello2")
-
-
+    UpdateScreen.write_status_bar()
     @touch.on(touch.CANCEL)
     def toggle_silence_alarm(ch, evt):
         if GVars.LED_DAY_MODE is False:
@@ -166,7 +192,6 @@ def main():
 
     while True:
         main_loop()
-        sleep(1)
 
 
 if __name__ == "__main__":
