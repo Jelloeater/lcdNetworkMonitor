@@ -7,6 +7,7 @@ import argparse
 from dothat import lcd, backlight
 import dothat.touch as touch
 import pyping
+from easysnmp import snmp_get
 
 class GVars():
     LED_RED = 0
@@ -158,13 +159,17 @@ class UpdateScreen():
             lcd.write(ping_server('fast.com'))
 
             Screen.idle()
+            snmp_in = get_snmp_bw('192.168.11.1','public','1.3.6.1.2.1.2.2.1.10.2')
+            snmp_out = get_snmp_bw('192.168.11.1','public','1.3.6.1.2.1.31.1.1.1.6.1')
 
+def get_snmp_bw(ip,community,oid):
+    # Grab a single piece of information using an SNMP GET
+    return str(snmp_get(oids=oid, hostname=ip, community=community, version=1).value/8)
 
 def ping_server(ip):
     try:
         p = pyping.ping(ip,count=2).avg_rtt[:-4] + '    '
         try:
-            logging.debug(p)
             int(p)
             if p < 80:
                 Screen.idle_warn()
