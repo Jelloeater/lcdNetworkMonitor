@@ -4,7 +4,6 @@ cap1xxx==0.1.4
 certifi==2025.1.31
 charset-normalizer==3.4.1
 idna==3.10
-logging==0.4.9.6
 ping3==4.0.8
 pyping==0.0.6
 requests==2.32.3
