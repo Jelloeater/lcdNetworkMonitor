@@ -171,7 +171,7 @@ def ping_server(ip):
     except:
         Screen.idle_error()
         p = "ERROR "
-    return p + "    "
+    return str(p) + "    "
 
 
 def main_loop():
