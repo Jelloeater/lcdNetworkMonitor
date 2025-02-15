@@ -165,7 +165,7 @@ def ping_server(ip):
         p = ping3.ping(ip)
         p = round(p * 1000)
         try:
-            if p < 80:
+            if p < 120:
                 Screen.idle_warn()
         except:
             pass
@@ -177,7 +177,7 @@ def ping_server(ip):
 
 def main_loop():
     UpdateScreen.write_status_bar()
-    GVars.LED_DAY_MODE = True
+    GVars.LED_DAY_MODE = False
 
 
 def main():
