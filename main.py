@@ -165,7 +165,7 @@ def ping_server(ip):
         p = ping3.ping(ip)
         p = round(p * 1000)
         try:
-            if p < 120:
+            if p > 120:
                 Screen.idle_warn()
         except:
             pass
