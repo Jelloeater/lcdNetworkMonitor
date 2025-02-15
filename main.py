@@ -8,6 +8,8 @@ from time import sleep
 import ping3
 
 
+from dothat import lcd, backlight
+
 class GVars:
     LED_RED = 0
     LED_GREEN = 0
@@ -189,5 +191,4 @@ def main():
 
 
 if __name__ == "__main__":
-    from dothat import lcd, backlight
     main()
