@@ -10,6 +10,10 @@ dependencies = [
     "logging>=0.4.9.6",
     "pyping>=0.0.6",
     "requests>=2.25.1",
+    "rpi-gpio>=0.7.1",
+    "sn3218>=2.0.0",
+    "spidev>=3.6",
+    "st7036>=1.4.4",
 ]
 
 [tool.uv.sources]

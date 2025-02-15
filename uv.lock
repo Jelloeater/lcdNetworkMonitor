@@ -232,6 +232,11 @@ dependencies = [
     { name = "requests", version = "2.27.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.5' and python_full_version < '3.7'" },
     { name = "requests", version = "2.31.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.7.*'" },
     { name = "requests", version = "2.32.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.8'" },
+    { name = "rpi-gpio" },
+    { name = "sn3218", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.7'" },
+    { name = "sn3218", version = "3.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.7'" },
+    { name = "spidev" },
+    { name = "st7036" },
 ]
 
 [package.metadata]
@@ -241,6 +246,10 @@ requires-dist = [
     { name = "logging", specifier = ">=0.4.9.6" },
     { name = "pyping", specifier = ">=0.0.6" },
     { name = "requests", specifier = ">=2.25.1" },
+    { name = "rpi-gpio", specifier = ">=0.7.1" },
+    { name = "sn3218", specifier = ">=2.0.0" },
+    { name = "spidev", specifier = ">=3.6" },
+    { name = "st7036", specifier = ">=1.4.4" },
 ]
 
 [[package]]
@@ -343,6 +352,65 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b4/4e/1ff704c41ae2dd5d9e0481fa41781ec2f62c80159b02769b2a69215b5600/RPi.GPIO-0.7.1-cp38-cp38-linux_armv6l.whl", hash = "sha256:29226823da8b5ccb9001d795a944f2e00924eeae583490f0bc7317581172c624", size = 68353 },
     { url = "https://files.pythonhosted.org/packages/b7/f4/19ac7172e60983148970abcd96a5c5d099febf538f35e9f569b3c1a70543/RPi.GPIO-0.7.1-cp39-cp39-linux_armv6l.whl", hash = "sha256:15311d3b063b71dee738cd26570effc9985a952454d162937c34e08c0fc99902", size = 69302 },
 ]
+
+[[package]]
+name = "smbus2"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/c9/6d85aa809e107adf85303010a59b340be109c8f815cbedc5c08c73bcffef/smbus2-0.5.0.tar.gz", hash = "sha256:4a5946fd82277870c2878befdb1a29bb28d15cda14ea4d8d2d54cf3d4bdcb035", size = 16950 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/9f/2235ba9001e3c29fc342eeb222104420bcb7bac51555f0c034376a744075/smbus2-0.5.0-py2.py3-none-any.whl", hash = "sha256:1a15c3b9fa69357beb038cc0b5d37939702f8bfde1ddc89ca9f17d8461dbe949", size = 11527 },
+]
+
+[[package]]
+name = "sn3218"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.6.*'",
+    "python_full_version == '3.5.*'",
+    "python_full_version < '3.5'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/04/e21d7f5b932a825eb8e2ab5c9b16e9be61007b97694f044f99e7e9f8ee8d/sn3218-2.0.0.tar.gz", hash = "sha256:54beb6012bee63ed4828544a0c63d572b7b2267701f506fdc27a7854d7c82fde", size = 4732 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/a8/168f2735fbb1c4461db7274d1111dd32ad634b5ed70cf2941296e7f1a0b8/sn3218-2.0.0-py3-none-any.whl", hash = "sha256:d9b130e208bc32c6ac8ac267a52800b330b3acd0f2529533ad8cd3b8cfd8a5d8", size = 4261 },
+]
+
+[[package]]
+name = "sn3218"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.9'",
+    "python_full_version == '3.8.*'",
+    "python_full_version == '3.7.*'",
+]
+dependencies = [
+    { name = "smbus2", marker = "python_full_version >= '3.7'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8c/52/a1193f17528aad6a1183f73adf5753294e5aa2be57aa3d69eb2706b0dbcc/sn3218-3.0.0.tar.gz", hash = "sha256:1796e534efc395657600f42f4222d14d7f13b98be19ee506316e49ef664e2946", size = 10284 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/4a/ef93284eb47608162abfe682e254f1d50c940bfcb9929d56fb1b0bcd26c4/sn3218-3.0.0-py3-none-any.whl", hash = "sha256:5b5f0ee1c24bf22a3fe3d09de5b9b0620732b6e68f7acf30a7bd1381e45b28d2", size = 6553 },
+]
+
+[[package]]
+name = "spidev"
+version = "3.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/d9/401c0a7be089e02826cf2c201f489876b601f15be100fe391ef9c2faed83/spidev-3.6.tar.gz", hash = "sha256:14dbc37594a4aaef85403ab617985d3c3ef464d62bc9b769ef552db53701115b", size = 11917 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/73/48c2f27691b95dc7eff2263e92e62522b2f034186be5ecc294087b3d38aa/spidev-3.6-cp39-cp39-linux_armv7l.whl", hash = "sha256:280abc00a1ef7780ef62c3f294f52a2527b6c47d8c269fea98664970bcaf6da5", size = 40010 },
+]
+
+[[package]]
+name = "st7036"
+version = "1.4.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "rpi-gpio" },
+    { name = "spidev" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/69/fa/19c7651e8ed1c60e30efb3ea2b6f6cd5bedde4f29da1b5942a4058d3710b/st7036-1.4.4.tar.gz", hash = "sha256:b48ffee4edcd3837c000bb3f28f3c9e45747b10abc061b5fde0ccd783901fab6", size = 5098 }
 
 [[package]]
 name = "urllib3"
