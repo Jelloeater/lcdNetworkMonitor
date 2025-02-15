@@ -1,15 +1,16 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
-from time import sleep
+import argparse
 import logging
 import sys
-import argparse
-from dothat import lcd, backlight
+from time import sleep
+
 import dothat.touch as touch
 import pyping
-from easysnmp import snmp_get
+from dothat import lcd, backlight
 
-class GVars():
+
+class GVars:
     LED_RED = 0
     LED_GREEN = 0
     LED_BLUE = 0
@@ -17,7 +18,7 @@ class GVars():
     LED_DAY_MODE = True
 
 
-class Bootstrap():
+class Bootstrap:
     @staticmethod
     def setup_logging():
         LOG_FILENAME = 'probeLED.log'
@@ -41,7 +42,7 @@ class Bootstrap():
                                 level=logging.WARNING)
 
 
-class Screen():
+class Screen:
     @staticmethod
     def reset():
         lcd.clear()
@@ -83,7 +84,7 @@ class Screen():
 
     @staticmethod
     def change_color(r_in, g_in, b_in, seconds=.5):
-        # Make sure back light is at global values
+        # Make sure backlight is at global values
         backlight.rgb(GVars.LED_RED, GVars.LED_GREEN, GVars.LED_BLUE)
         red_delta = abs(GVars.LED_RED - r_in)
         green_delta = abs(GVars.LED_GREEN - g_in)
@@ -138,40 +139,32 @@ class LedStrip():
         backlight.graph_set_led_duty(0, brightness)
 
 
-class UpdateScreen():
+class UpdateScreen:
     @staticmethod
     def write_status_bar():
-            lcd.set_cursor_position(0, 0)
-            lcd.write('Google')
-            lcd.set_cursor_position(10, 0)
-            lcd.write(ping_server('8.8.8.8'))
+        lcd.set_cursor_position(0, 0)
+        lcd.write('Google')
+        lcd.set_cursor_position(10, 0)
+        lcd.write(ping_server('8.8.8.8'))
 
+        lcd.set_cursor_position(0, 1)
+        lcd.write('Router')
+        lcd.set_cursor_position(10, 1)
+        lcd.write(ping_server('192.168.1.1'))
 
-            lcd.set_cursor_position(0, 1)
-            lcd.write('Router')
-            lcd.set_cursor_position(10, 1)
-            lcd.write(ping_server('192.168.1.1'))
+        lcd.set_cursor_position(0, 2)
+        lcd.write('Fast.com')
+        lcd.set_cursor_position(10, 2)
+        lcd.write(ping_server('fast.com'))
 
-
-            lcd.set_cursor_position(0, 2)
-            lcd.write('Fast.com')
-            lcd.set_cursor_position(10, 2)
-            lcd.write(ping_server('fast.com'))
-
-            Screen.idle()
-#             snmp_in = get_snmp_bw('192.168.11.1','public','1.3.6.1.2.1.2.2.1.10.2')
-#             snmp_out = get_snmp_bw('192.168.11.1','public','1.3.6.1.2.1.31.1.1.1.6.1')
-#
-# def get_snmp_bw(ip,community,oid):
-#     # Grab a single piece of information using an SNMP GET
-#     return str(snmp_get(oids=oid, hostname=ip, community=community, version=1).value/8)
+        Screen.idle()
 
 def ping_server(ip):
     try:
         p = pyping.ping(ip,count=2).avg_rtt[:-4] + '    '
         try:
-            int(p)
-            if p < 80:
+            int(p.split('.')[0])  # Adjusted to handle 'ms' properly
+            if float(p.split('.')[0]) < 80:
                 Screen.idle_warn()
         except:
             pass

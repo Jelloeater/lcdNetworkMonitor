@@ -1,0 +1,15 @@
+[project]
+name = "lcdnetworkmonitor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">3"
+dependencies = [
+    "displayotron",
+    "logging>=0.4.9.6",
+    "pyping>=0.0.6",
+    "requests>=2.25.1",
+]
+
+[tool.uv.sources]
+displayotron = { git = "https://github.com/jelloeater/displayotron", rev = "lib" }
