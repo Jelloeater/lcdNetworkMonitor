@@ -3,10 +3,12 @@ from sys import exit
 try:
     from cap1xxx import Cap1166, PID_CAP1166
 except ImportError:
-    exit("This library requires the cap1xxx module\nInstall with: sudo pip install cap1xxx")
+    exit(
+        "This library requires the cap1xxx module\nInstall with: sudo pip install cap1xxx"
+    )
 
 
-I2C_ADDR = 0x2c
+I2C_ADDR = 0x2C
 
 UP = 1
 DOWN = 2
@@ -21,6 +23,7 @@ _cap1166._write_byte(0x26, 0b00111111)  # Force recalibration
 for x in range(6):
     _cap1166.set_led_linking(x, False)
 
+
 def high_sensitivity():
     """Switch to high sensitivity mode
 
@@ -30,7 +33,8 @@ def high_sensitivity():
     """
 
     _cap1166._write_byte(0x00, 0b11000000)
-    _cap1166._write_byte(0x1f, 0b00000000)
+    _cap1166._write_byte(0x1F, 0b00000000)
+
 
 def enable_repeat(enable):
     """Enable touch hold repeat
@@ -48,6 +52,7 @@ def enable_repeat(enable):
     else:
         _cap1166.enable_repeat(0b00000000)
 
+
 def set_repeat_rate(rate):
     """Set hold repeat rate
 
@@ -59,6 +64,7 @@ def set_repeat_rate(rate):
     """
 
     _cap1166.set_repeat_rate(rate)
+
 
 def on(buttons, bounce=-1):
     """Handle a press of one or more buttons
@@ -73,8 +79,8 @@ def on(buttons, bounce=-1):
 
     def register(handler):
         for button in buttons:
-            _cap1166.on(channel=button, event='press', handler=handler)
-            _cap1166.on(channel=button, event='held', handler=handler)
+            _cap1166.on(channel=button, event="press", handler=handler)
+            _cap1166.on(channel=button, event="held", handler=handler)
 
     return register
 
@@ -86,6 +92,7 @@ def bind_defaults(menu):
     to bind touch inputs to the default controls.
 
     """
+
     @on(UP)
     def handle_up(ch, evt):
         menu.up()
