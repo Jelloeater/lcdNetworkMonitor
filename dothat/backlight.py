@@ -277,4 +277,7 @@ def off():
 def update():
     """Update backlight with changes to the LED buffer"""
 
-    sn3218.output(leds)
+    # Convert LED values to integers before passing them to sn3218.output
+    integer_leds = [int(value) for value in leds]
+    sn3218.output(integer_leds)
+
