@@ -1,9 +1,9 @@
 [project]
 name = "lcdnetworkmonitor"
 version = "0.1.0"
-description = "Add your description here"
+description = "LCD Network Monitor"
 readme = "README.md"
-requires-python = ">3"
+requires-python = ">=3.11"
 dependencies = [
     "cap1xxx>=0.1.4",
     "displayotron",

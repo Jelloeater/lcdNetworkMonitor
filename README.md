@@ -1,4 +1,5 @@
 # Control LED on Pi w/ PRTG API
 
 # Requirments
-* requests module
+- sudo apt-get install python3-dev
+- uv run main.py
