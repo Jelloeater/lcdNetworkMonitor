@@ -150,7 +150,7 @@ class UpdateScreen:
         lcd.set_cursor_position(0, 1)
         lcd.write("Router")
         lcd.set_cursor_position(10, 1)
-        lcd.write(ping_server("192.168.1.1"))
+        lcd.write(ping_server("192.168.11.1"))
 
         lcd.set_cursor_position(0, 2)
         lcd.write("Fast.com")
