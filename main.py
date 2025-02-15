@@ -5,7 +5,6 @@ import logging
 import sys
 from time import sleep
 
-import dothat.touch as touch
 import pyping
 from dothat import lcd, backlight
 
@@ -176,12 +175,8 @@ def ping_server(ip):
 
 def main_loop():
     UpdateScreen.write_status_bar()
-    @touch.on(touch.CANCEL)
-    def toggle_silence_alarm(ch, evt):
-        if GVars.LED_DAY_MODE is False:
-            GVars.LED_DAY_MODE = True
-        else:
-            GVars.LED_DAY_MODE = False
+    GVars.LED_DAY_MODE = True
+
 
 
 def main():
