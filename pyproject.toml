@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "cap1xxx>=0.1.4",
-    "displayotron",
     "logging>=0.4.9.6",
     "pyping>=0.0.6",
     "requests>=2.25.1",
@@ -15,6 +14,3 @@ dependencies = [
     "spidev>=3.6",
     "st7036>=1.4.4",
 ]
-
-[tool.uv.sources]
-displayotron = { git = "https://github.com/jelloeater/displayotron", rev = "lib" }
