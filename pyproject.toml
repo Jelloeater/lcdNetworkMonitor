@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">3"
 dependencies = [
+    "cap1xxx>=0.1.4",
     "displayotron",
     "logging>=0.4.9.6",
     "pyping>=0.0.6",
