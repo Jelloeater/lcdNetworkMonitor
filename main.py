@@ -162,17 +162,16 @@ class UpdateScreen:
 
 def ping_server(ip):
     try:
-        p = ping3.ping(ip) + "    "
+        p = ping3.ping(ip)
         try:
-            int(p.split(".")[0])  # Adjusted to handle 'ms' properly
-            if float(p.split(".")[0]) < 80:
+            if p < 80:
                 Screen.idle_warn()
         except:
             pass
     except:
         Screen.idle_error()
         p = "ERROR "
-    return p
+    return p + "    "
 
 
 def main_loop():
