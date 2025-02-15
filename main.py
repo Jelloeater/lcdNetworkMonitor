@@ -163,6 +163,7 @@ class UpdateScreen:
 def ping_server(ip):
     try:
         p = ping3.ping(ip)
+        p = int(p * 10)
         try:
             if p < 80:
                 Screen.idle_warn()
