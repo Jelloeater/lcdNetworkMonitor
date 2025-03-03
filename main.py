@@ -10,6 +10,8 @@ import ping3
 
 from dothat import lcd, backlight
 
+WARN_LIMIT = 120
+
 class GVars:
     LED_RED = 0
     LED_GREEN = 0
@@ -144,21 +146,42 @@ class LedStrip:
 class UpdateScreen:
     @staticmethod
     def write_status_bar():
+
+        C1=9
+        C2=13
+        C3=17
         lcd.set_cursor_position(0, 0)
         lcd.write("Google")
-        lcd.set_cursor_position(10, 0)
-        lcd.write(ping_server("8.8.8.8"))
-
         lcd.set_cursor_position(0, 1)
         lcd.write("Router")
-        lcd.set_cursor_position(10, 1)
-        lcd.write(ping_server("192.168.11.1"))
-
         lcd.set_cursor_position(0, 2)
-        lcd.write("Fast.com")
-        lcd.set_cursor_position(10, 2)
-        lcd.write(ping_server("fast.com"))
+        lcd.write("OO WAN")
+        
+        lcd.set_cursor_position(C1, 0)
+        lcd.write(ping_server("8.8.8.8"))
+        lcd.set_cursor_position(C1, 1)
+        lcd.write(ping_server("192.168.11.1"))
+        lcd.set_cursor_position(C1, 2)
+        lcd.write(ping_server("jelloeater.damnserver.com"))
 
+        sleep(.5)
+        lcd.set_cursor_position(C2, 1)
+        lcd.write(ping_server("192.168.11.1"))
+        lcd.set_cursor_position(C2, 0)
+        lcd.write(ping_server("8.8.8.8"))
+        lcd.set_cursor_position(C2, 2)
+        lcd.write(ping_server("jelloeater.damnserver.com"))
+        
+        sleep(.5)
+
+        # lcd.set_cursor_position(C3, 1)
+        # lcd.write(ping_server("192.168.11.1"))
+        # lcd.set_cursor_position(C3, 0)
+        # lcd.write(ping_server("8.8.8.8"))
+        # lcd.set_cursor_position(C3, 2)
+        # lcd.write(ping_server("jelloeater.damnserver.com"))
+
+        sleep(.5)
         Screen.idle()
 
 
@@ -167,14 +190,24 @@ def ping_server(ip):
         p = ping3.ping(ip)
         p = round(p * 1000)
         try:
-            if p > 120:
+            if p > WARN_LIMIT:
                 Screen.idle_warn()
+            if p > WARN_LIMIT:
+                Screen.idle_warn()
+
         except:
             pass
     except:
         Screen.idle_error()
-        p = "ERROR "
-    return str(p) + "    "
+        p = "ERR"
+    out = str(p)
+    if len(out) == 3:
+        return str(p)
+    if len(out) == 2:
+        return str(p) + " "
+    if len(out) == 1:
+        return str(p) + "  "
+    
 
 
 def main_loop():
