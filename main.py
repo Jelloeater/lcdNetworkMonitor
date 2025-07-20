@@ -5,10 +5,8 @@ import logging
 import sys
 from time import sleep
 
-import ping3
-
-
 from dothat import lcd, backlight
+import libs
 
 WARN_LIMIT = 250
 
@@ -159,7 +157,7 @@ class UpdateScreen:
         # lcd.write("OO WAN")
 
         lcd.set_cursor_position(C1, 0)
-        lcd.write(ping_server("8.8.8.8"))
+        lcd.write(libs.ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C1, 1)
         # lcd.write(ping_server("192.168.11.1"))
         # lcd.set_cursor_position(C1, 2)
@@ -167,7 +165,7 @@ class UpdateScreen:
 
         sleep(.5)
         lcd.set_cursor_position(C2, 0)
-        lcd.write(ping_server("8.8.8.8"))
+        lcd.write(libs.ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C2, 0)
         # lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C2, 2)
@@ -176,7 +174,7 @@ class UpdateScreen:
         sleep(.5)
 
         lcd.set_cursor_position(C3, 0)
-        lcd.write(ping_server("8.8.8.8"))
+        lcd.write(libs.ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 0)
         # lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 2)
@@ -184,31 +182,6 @@ class UpdateScreen:
 
         sleep(.5)
         Screen.idle()
-
-
-def ping_server(ip):
-    try:
-        p = ping3.ping(ip)
-        p = round(p * 1000)
-        try:
-            if p > WARN_LIMIT:
-                Screen.idle_warn()
-            if p > WARN_LIMIT:
-                Screen.idle_warn()
-
-        except:
-            pass
-    except:
-        # Screen.idle_error()
-        p = "???"
-    out = str(p)
-    if len(out) == 3:
-        return str(p)
-    if len(out) == 2:
-        return str(p) + " "
-    if len(out) == 1:
-        return str(p) + "  "
-
 
 
 def main_loop():
