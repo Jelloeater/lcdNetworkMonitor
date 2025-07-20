@@ -10,7 +10,7 @@ import ping3
 
 from dothat import lcd, backlight
 
-WARN_LIMIT = 120
+WARN_LIMIT = 250
 
 class GVars:
     LED_RED = 0
@@ -63,14 +63,14 @@ class Screen:
         if GVars.LED_DAY_MODE is True:
             Screen.change_color(200, 200, 0)
         else:
-            Screen.change_color(120, 120, 0)
+            Screen.change_color(80, 80, 0)
 
     @staticmethod
     def idle_error():
         if GVars.LED_DAY_MODE is True:
             Screen.change_color(200, 0, 0)
         else:
-            Screen.change_color(120, 0, 0)
+            Screen.change_color(80, 0, 0)
 
     @staticmethod
     def idle():
@@ -80,14 +80,14 @@ class Screen:
             Screen.change_color(0, 0, 0)
 
     @staticmethod
-    def pulse_color(r_in, g_in, b_in, number_of_loops=2):
+    def pulse_color(r_in, g_in, b_in, number_of_loops=3):
         Screen.change_color(r_in, g_in, b_in)
         for x in range(0, number_of_loops):
             Screen.change_color(0, 0, 0)
             Screen.change_color(r_in, g_in, b_in)
 
     @staticmethod
-    def change_color(r_in, g_in, b_in, seconds=0.5):
+    def change_color(r_in, g_in, b_in, seconds=0.75):
         # Make sure backlight is at global values
         backlight.rgb(GVars.LED_RED, GVars.LED_GREEN, GVars.LED_BLUE)
         red_delta = abs(GVars.LED_RED - r_in)
@@ -146,36 +146,37 @@ class LedStrip:
 class UpdateScreen:
     @staticmethod
     def write_status_bar():
-
-        C1=9
-        C2=13
-        C3=17
+        SPACE=4
+        START = 1
+        C1=SPACE*1 + START
+        C2=SPACE*2 + START
+        C3=SPACE*3 + START
         lcd.set_cursor_position(0, 0)
-        lcd.write("Google")
-        lcd.set_cursor_position(0, 1)
-        lcd.write("Router")
-        lcd.set_cursor_position(0, 2)
-        lcd.write("OO WAN")
-        
+        lcd.write("W&")
+        # lcd.set_cursor_position(0, 1)
+        # lcd.write("Router")
+        # lcd.set_cursor_position(0, 2)
+        # lcd.write("OO WAN")
+
         lcd.set_cursor_position(C1, 0)
         lcd.write(ping_server("8.8.8.8"))
-        lcd.set_cursor_position(C1, 1)
-        lcd.write(ping_server("192.168.11.1"))
-        lcd.set_cursor_position(C1, 2)
-        lcd.write(ping_server("jelloeater.damnserver.com"))
+        # lcd.set_cursor_position(C1, 1)
+        # lcd.write(ping_server("192.168.11.1"))
+        # lcd.set_cursor_position(C1, 2)
+        # lcd.write(ping_server("jelloeater.damnserver.com"))
 
         sleep(.5)
-        lcd.set_cursor_position(C2, 1)
-        lcd.write(ping_server("192.168.11.1"))
         lcd.set_cursor_position(C2, 0)
         lcd.write(ping_server("8.8.8.8"))
-        lcd.set_cursor_position(C2, 2)
-        lcd.write(ping_server("jelloeater.damnserver.com"))
-        
+        # lcd.set_cursor_position(C2, 0)
+        # lcd.write(ping_server("8.8.8.8"))
+        # lcd.set_cursor_position(C2, 2)
+        # lcd.write(ping_server("jelloeater.damnserver.com"))
+        #
         sleep(.5)
 
-        # lcd.set_cursor_position(C3, 1)
-        # lcd.write(ping_server("192.168.11.1"))
+        lcd.set_cursor_position(C3, 0)
+        lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 0)
         # lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 2)
@@ -198,8 +199,8 @@ def ping_server(ip):
         except:
             pass
     except:
-        Screen.idle_error()
-        p = "ERR"
+        # Screen.idle_error()
+        p = "???"
     out = str(p)
     if len(out) == 3:
         return str(p)
@@ -207,7 +208,7 @@ def ping_server(ip):
         return str(p) + " "
     if len(out) == 1:
         return str(p) + "  "
-    
+
 
 
 def main_loop():
