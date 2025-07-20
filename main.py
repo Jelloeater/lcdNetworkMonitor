@@ -6,6 +6,7 @@ import sys
 from time import sleep
 
 import libs
+import utils
 from dothat import lcd
 from utils import get_ping
 
@@ -73,23 +74,24 @@ class UpdateScreen:
 
         lcd.set_cursor_position(C1, 0)
         lcd.write(Actions.ping_server("8.8.8.8"))
-        # lcd.set_cursor_position(C1, 1)
-        # lcd.write(ping_server("192.168.11.1"))
-        # lcd.set_cursor_position(C1, 2)
-        # lcd.write(ping_server("jelloeater.damnserver.com"))
-
         sleep(.5)
         lcd.set_cursor_position(C2, 0)
         lcd.write(Actions.ping_server("8.8.8.8"))
+        sleep(.5)
+        lcd.set_cursor_position(C3, 0)
+        lcd.write(Actions.ping_server("8.8.8.8"))
+
+        lcd.set_cursor_position(0, 2)
+        lcd.write(utils.get_time_iso())
+
+
+
         # lcd.set_cursor_position(C2, 0)
         # lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C2, 2)
         # lcd.write(ping_server("jelloeater.damnserver.com"))
         #
-        sleep(.5)
 
-        lcd.set_cursor_position(C3, 0)
-        lcd.write(Actions.ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 0)
         # lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 2)

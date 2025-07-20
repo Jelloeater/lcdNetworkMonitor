@@ -25,3 +25,12 @@ def get_ping(ip):
         return str(p) + "  "
 
 
+def get_time_iso():
+
+    import time
+    import calendar
+    utc = time.gmtime(time.time())
+
+    out = f"{utc.tm_mon:02d}-{utc.tm_mday:02d} {calendar.day_abbr[utc.tm_wday]} {utc.tm_hour:02d}:{utc.tm_min:02d}"
+    return out
+    # return datetime.now().isoformat(timespec='minutes')
