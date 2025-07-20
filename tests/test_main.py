@@ -15,3 +15,10 @@ def test_time_iso():
     assert response.count('-') == 1, "ISO format should contain two hyphens"
     assert response.count(':') == 1, "ISO format should contain two colons"
     # assert response.count('T') == 1, "ISO format should contain one 'T' character"
+
+def test_wakatime():
+    # Test if the function returns a string
+    response = utils.get_wakatime()
+    assert isinstance(response, str), "Response should be a string"
+    assert len(response) > 0, "Response should not be empty"
+    # Additional checks can be added based on expected WakaTime output format
