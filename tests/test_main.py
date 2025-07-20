@@ -1,7 +1,8 @@
-import main
+import utils
 
 
-def test_ping_server():
+def test_get_ping():
     # Test with a known IP address that should respond
-    response = main.ping_server("8.8.8.8")
-    assert isinstance(response, str)
+    response = utils.get_ping("8.8.8.8")
+    response = int(response)  # Convert to int to ensure it's a number
+    assert response > 0, "Ping should return a positive integer for a reachable IP address"
