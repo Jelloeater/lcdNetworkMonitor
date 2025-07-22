@@ -22,3 +22,14 @@ def test_wakatime():
     assert isinstance(response, str), "Response should be a string"
     assert len(response) > 0, "Response should not be empty"
     # Additional checks can be added based on expected WakaTime output format
+
+
+# TODO Add more tests for the following:
+#  Wakatime
+#  Weather
+#  WAN Speed
+#  UTC Clock
+#  PRTG Alert Count
+#  VMware CPU via SNMP
+#  Unread RSS + Unread Gmail
+#  Public IP#
