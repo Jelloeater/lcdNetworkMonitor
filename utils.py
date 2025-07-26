@@ -5,6 +5,8 @@ from datetime import datetime
 import ping3
 import os
 import requests
+import dotenv
+dotenv.load_dotenv() # Load environment variables from .env file
 
 def get_ping(ip):
     try:
@@ -107,30 +109,31 @@ def get_public_ip():
         logging.exception("An error occurred while fetching public IP.")
         return "Public IP not available"
 
-#
-# # TODO Get Wan speed from PRTG Rest API
-# # Ex https://www.paessler.com/support/prtg/api/v2/overview/index.html
-# def get_prtg_speed():
-#     try:
-#         base_url = "https://probe/api/historicdata.json"
-#         params = {
-#             "id": sensor_id,  # sensor_id should be defined elsewhere
-#             "avg": avg,  # avg should be defined elsewhere
-#             "sdate": start_date,  # start_date should be defined elsewhere
-#             "edate": end_date,  # end_date should be defined elsewhere
-#             "usecaption": 1,
-#             "apitoken": api_token,  # api_token should be defined elsewhere
-#         }
-#
-#         response = requests.get(base_url, params=params)
-#         if response.status_code == 200:
-#             # process response        if response.status_code == 200:
-#             data = response.json()
-#             # Process the data as needed
-#             return data
-#         else:
-#             logging.error(f"Failed to fetch PRTG speed data: {response.status_code}")
-#             return "PRTG speed data not available"
-#     except requests.RequestException:
-#         logging.exception("An error occurred while fetching PRTG speed data.")
-#         return "PRTG speed data not available"
+
+# TODO Get Wan speed from PRTG Rest API
+# Ex https://www.paessler.com/support/prtg/api/v2/overview/index.html
+def get_prtg_stat(sensor_id,channel_id):
+    api_key = os.getenv("PRTG_API_KEY")
+    if not api_key:
+        raise ValueError("WAKATIME_API_KEY is not set or .wakatime.cfg file not found.")
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    b64_api_key = base64.b64encode(api_key.encode()).decode()
+
+    headers = {"Authorization": f"Basic {b64_api_key}"}
+    url = f"https://wakatime.com/api/v1/users/current/durations?date={today}"
+
+    response = requests.get(
+        url, headers=headers
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        # Sum all durations to get total seconds
+        total_seconds = sum(item["duration"] for item in data["data"])
+        return f"{total_seconds / 3600:.2f}"
+    else:
+        logging.exception(f"Error: {response.status_code} {response.text}")
+        raise Exception(f"Error fetching WakaTime data: {response.status_code} {response.text}")
+
+
+
