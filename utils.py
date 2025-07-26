@@ -37,9 +37,25 @@ def get_time_iso():
     out = f"{utc.tm_mon:02d}-{utc.tm_mday:02d} {calendar.day_abbr[utc.tm_wday]} {utc.tm_hour:02d}:{utc.tm_min:02d}"
     return out
 
+def get_wakatime_api_key():
+    api_key = os.getenv("WAKATIME_API_KEY")
+    if not api_key:
+        # read the .wakatime.cfg from the home directory
+        config_path = os.path.expanduser("~/.wakatime.cfg")
+        if os.path.exists(config_path):
+            with open(config_path, "r") as f:
+                for line in f:
+                    if line.startswith("api_key"):
+                        return line.split("=")[1].strip()
+        else:
+            logging.error("WAKATIME_API_KEY environment variable is not set and .wakatime.cfg file not found.")
+            raise ValueError("WAKATIME_API_KEY environment variable is not set.")
+    return api_key
 
 def get_wakatime():
-    api_key = os.getenv("WAKATIME_API_KEY")
+    api_key = get_wakatime_api_key()
+    if not api_key:
+        raise ValueError("WAKATIME_API_KEY is not set or .wakatime.cfg file not found.")
     today = datetime.utcnow().strftime("%Y-%m-%d")
     b64_api_key = base64.b64encode(api_key.encode()).decode()
 
@@ -57,7 +73,7 @@ def get_wakatime():
         return f"{total_seconds / 3600:.2f}"
     else:
         logging.exception(f"Error: {response.status_code} {response.text}")
-        return None
+        raise Exception(f"Error fetching WakaTime data: {response.status_code} {response.text}")
 
 # TODO Get Weather from wttr.in
 def get_weather():
