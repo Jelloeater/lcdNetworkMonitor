@@ -30,11 +30,17 @@ def test_weather():
     assert len(response) > 0, "Response should not be empty"
     # Additional checks can be added based on expected weather output format
 
+def test_get_public_ip():
+    # Test if the function returns a valid public IP address
+    response = utils.get_public_ip()
+    assert isinstance(response, str), "Response should be a string"
+    assert len(response) > 0, "Response should not be empty"
+    assert response.count('.') == 3, "Public IP should contain three dots"
+    # Additional checks can be added to validate the format of the IP address
 
 # TODO Add more tests for the following:
 #  Wakatime
 #  WAN Speed
-#  UTC Clock
 #  PRTG Alert Count
 #  VMware CPU via SNMP
 #  Unread RSS + Unread Gmail

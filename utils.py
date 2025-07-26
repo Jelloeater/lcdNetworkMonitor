@@ -78,6 +78,18 @@ def get_weather():
         logging.exception("An error occurred while fetching weather data.")
         return "Weather data not available"
 
+def get_public_ip():
+    try:
+        response = requests.get("https://ipinfo.io/json")
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("ip", "IP not found")
+        else:
+            logging.error(f"Failed to fetch public IP: {response.status_code}")
+            return "Public IP not available"
+    except requests.RequestException:
+        logging.exception("An error occurred while fetching public IP.")
+        return "Public IP not available"
 
 #
 # # TODO Get Wan speed from PRTG Rest API
