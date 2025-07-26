@@ -62,9 +62,15 @@ def get_wakatime():
 # TODO Get Weather from wttr.in
 def get_weather():
     try:
-        response = requests.get("https://wttr.in/?format=3")
+        response = requests.get("https://wttr.in/?format=j1")
         if response.status_code == 200:
-            return response.text.strip()
+            response_json = response.json()
+            # Extract the current temperature in Celsius
+            current_temp = response_json["current_condition"][0]["temp_F"]
+            # Extract the weather description
+            weather_desc = response_json["current_condition"][0]["weatherDesc"][0]["value"]
+            # Format the output
+            return f"{current_temp}°, {weather_desc}"
         else:
             logging.error(f"Failed to fetch weather data: {response.status_code}")
             return "Weather data not available"
@@ -73,29 +79,30 @@ def get_weather():
         return "Weather data not available"
 
 
-# TODO Get Wan speed from PRTG Rest API
-# Ex https://www.paessler.com/support/prtg/api/v2/overview/index.html
-def get_prtg_speed():
-    try:
-        base_url = "https://probe/api/historicdata.json"
-        params = {
-            "id": sensor_id,  # sensor_id should be defined elsewhere
-            "avg": avg,  # avg should be defined elsewhere
-            "sdate": start_date,  # start_date should be defined elsewhere
-            "edate": end_date,  # end_date should be defined elsewhere
-            "usecaption": 1,
-            "apitoken": api_token,  # api_token should be defined elsewhere
-        }
-
-        response = requests.get(base_url, params=params)
-        if response.status_code == 200:
-            # process response        if response.status_code == 200:
-            data = response.json()
-            # Process the data as needed
-            return data
-        else:
-            logging.error(f"Failed to fetch PRTG speed data: {response.status_code}")
-            return "PRTG speed data not available"
-    except requests.RequestException:
-        logging.exception("An error occurred while fetching PRTG speed data.")
-        return "PRTG speed data not available"
+#
+# # TODO Get Wan speed from PRTG Rest API
+# # Ex https://www.paessler.com/support/prtg/api/v2/overview/index.html
+# def get_prtg_speed():
+#     try:
+#         base_url = "https://probe/api/historicdata.json"
+#         params = {
+#             "id": sensor_id,  # sensor_id should be defined elsewhere
+#             "avg": avg,  # avg should be defined elsewhere
+#             "sdate": start_date,  # start_date should be defined elsewhere
+#             "edate": end_date,  # end_date should be defined elsewhere
+#             "usecaption": 1,
+#             "apitoken": api_token,  # api_token should be defined elsewhere
+#         }
+#
+#         response = requests.get(base_url, params=params)
+#         if response.status_code == 200:
+#             # process response        if response.status_code == 200:
+#             data = response.json()
+#             # Process the data as needed
+#             return data
+#         else:
+#             logging.error(f"Failed to fetch PRTG speed data: {response.status_code}")
+#             return "PRTG speed data not available"
+#     except requests.RequestException:
+#         logging.exception("An error occurred while fetching PRTG speed data.")
+#         return "PRTG speed data not available"

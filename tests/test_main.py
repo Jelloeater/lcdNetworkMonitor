@@ -23,10 +23,16 @@ def test_wakatime():
     assert len(response) > 0, "Response should not be empty"
     # Additional checks can be added based on expected WakaTime output format
 
+def test_weather():
+    # Test if the function returns a string
+    response = utils.get_weather()
+    assert isinstance(response, str), "Response should be a string"
+    assert len(response) > 0, "Response should not be empty"
+    # Additional checks can be added based on expected weather output format
+
 
 # TODO Add more tests for the following:
 #  Wakatime
-#  Weather
 #  WAN Speed
 #  UTC Clock
 #  PRTG Alert Count
