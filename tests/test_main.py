@@ -1,5 +1,4 @@
 import os
-from unittest import skipIf
 
 import utils
 
@@ -41,10 +40,16 @@ def test_get_public_ip():
     assert response.count('.') == 3, "Public IP should contain three dots"
     # Additional checks can be added to validate the format of the IP address
 
-@skipIf(True, "WIP")
+# @skipIf(True, "WIP")
 def test_get_prtg_sensor_info():
     # Test if the function returns a dictionary with expected keys
-    stat = utils.get_prtg_stat(sensor_id=(os.getenv("PRTG_WAN_SENSOR_ID")), channel_id=2) #2=Primary Channel
+    stat = utils.get_prtg_sensor(sensor_id=(os.getenv("PRTG_WAN_SENSOR_ID"))) #2=Primary Channel
+    assert stat is not None #"Response should not be None"
+
+# @skipIf(True, "WIP")
+def test_get_prtg_sensor_data():
+    # Test if the function returns a dictionary with expected keys
+    stat = utils.get_prtg_sensor_data(sensor_id=(os.getenv("PRTG_WAN_SENSOR_ID")), channel_id=2) #2=Primary Channel
     assert stat is not None #"Response should not be None"
     assert isinstance(stat, int), "Response should be an integer"
 

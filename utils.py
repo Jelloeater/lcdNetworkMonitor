@@ -112,28 +112,44 @@ def get_public_ip():
 
 # TODO Get Wan speed from PRTG Rest API
 # Ex https://www.paessler.com/support/prtg/api/v2/overview/index.html
-def get_prtg_stat(sensor_id,channel_id):
-    api_key = os.getenv("PRTG_API_KEY")
+def get_prtg_sensor(sensor_id):
+    TOKEN_NAME = "PRTG_API_TOKEN"
+    api_key = os.getenv(TOKEN_NAME)
     if not api_key:
-        raise ValueError("WAKATIME_API_KEY is not set or .wakatime.cfg file not found.")
+        raise ValueError(f"{TOKEN_NAME} is not set")
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    b64_api_key = base64.b64encode(api_key.encode()).decode()
 
-    headers = {"Authorization": f"Basic {b64_api_key}"}
-    url = f"https://wakatime.com/api/v1/users/current/durations?date={today}"
-
+    url = f"https://{os.getenv('PRTG_HOSTNAME')}/api/getsensordetails.json?id={sensor_id}&apitoken={os.getenv('PRTG_API_TOKEN')}"
     response = requests.get(
-        url, headers=headers
+        url=url,verify=False,  # Disable SSL verification if needed
     )
-
+    logging.debug(response)
     if response.status_code == 200:
         data = response.json()
-        # Sum all durations to get total seconds
-        total_seconds = sum(item["duration"] for item in data["data"])
-        return f"{total_seconds / 3600:.2f}"
+        return data
     else:
         logging.exception(f"Error: {response.status_code} {response.text}")
-        raise Exception(f"Error fetching WakaTime data: {response.status_code} {response.text}")
+        raise Exception(f"Error fetching data: {response.status_code} {response.text}")
 
+def get_prtg_sensor_data(sensor_id,channel_id):
+    TOKEN_NAME = "PRTG_API_TOKEN"
+    api_key = os.getenv(TOKEN_NAME)
+    if not api_key:
+        raise ValueError(f"{TOKEN_NAME} is not set")
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    sdate = f"{today}-00-00-00"
+    edate = f"{today}-23-59-59"
+    url = f"https://{os.getenv('PRTG_HOSTNAME')}/api/historicdata.json?id={sensor_id}&avg=0&sdate={sdate}&edate={edate}&usecaption=1 &apitoken={os.getenv('PRTG_API_TOKEN')}"
+    response = requests.get(
+        url=url,verify=False,  # Disable SSL verification if needed
+    )
+    logging.debug(response)
+    if response.status_code == 200:
+        logging.debug(channel_id)
+        data = response.json()
+        return data
+    else:
+        logging.exception(f"Error: {response.status_code} {response.text}")
+        raise Exception(f"Error fetching data: {response.status_code} {response.text}")
 
 
