@@ -1,6 +1,6 @@
 import base64
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import ping3
 import os
@@ -131,14 +131,17 @@ def get_prtg_sensor(sensor_id):
         logging.exception(f"Error: {response.status_code} {response.text}")
         raise Exception(f"Error fetching data: {response.status_code} {response.text}")
 
-def get_prtg_sensor_data(sensor_id,channel_id):
+def get_prtg_sensor_data(sensor_id, channel_id, time_delta):
     TOKEN_NAME = "PRTG_API_TOKEN"
     api_key = os.getenv(TOKEN_NAME)
     if not api_key:
         raise ValueError(f"{TOKEN_NAME} is not set")
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    sdate = f"{today}-00-00-00"
-    edate = f"{today}-23-59-59"
+
+    end = datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+    start_dt = datetime.utcnow() - timedelta(minutes=time_delta)
+    start = start_dt.strftime("%Y-%m-%d-%H-%M-%S")
+    sdate = f"{start}"
+    edate = f"{end}"
     url = f"https://{os.getenv('PRTG_HOSTNAME')}/api/historicdata.json?id={sensor_id}&avg=0&sdate={sdate}&edate={edate}&usecaption=1 &apitoken={os.getenv('PRTG_API_TOKEN')}"
     response = requests.get(
         url=url,verify=False,  # Disable SSL verification if needed
@@ -153,3 +156,7 @@ def get_prtg_sensor_data(sensor_id,channel_id):
         raise Exception(f"Error fetching data: {response.status_code} {response.text}")
 
 
+def get_prtg_sensor_data_value_last(sensor_id,channel_id,field_name):
+    time_delta=300 # Need to get at least 5 minutes of data
+    data = get_prtg_sensor_data(sensor_id,channel_id,time_delta)["histdata"]
+    return data[-1][field_name]
