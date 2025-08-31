@@ -5,8 +5,9 @@ from datetime import datetime, timedelta
 import ping3
 import os
 import requests
-import dotenv
-dotenv.load_dotenv() # Load environment variables from .env file
+
+from dotenvx_py import load_dotenv
+load_dotenv()
 
 def get_ping(ip):
     try:
