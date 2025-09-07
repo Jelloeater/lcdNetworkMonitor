@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "cap1xxx>=0.1.4",
+    "dotenvx-py",
     "logging>=0.4.9.6",
     "ping3>=4.0.8",
     "pyping>=0.0.6",
