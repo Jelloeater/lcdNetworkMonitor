@@ -6,7 +6,7 @@ import ping3
 import os
 import requests
 
-from dotenvx_py import load_dotenv
+from dotenv import load_dotenv
 load_dotenv()
 
 def get_ping(ip):

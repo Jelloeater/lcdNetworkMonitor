@@ -1,7 +1,23 @@
+import logging
 import os
 from unittest import skipIf
 
+import dotenv
+
 import utils
+
+def test_env_vars():
+    # Load environment variables from .env file for testing
+    logging.info(os.getcwd())
+    dotenv.load_dotenv(dotenv.find_dotenv())
+    required_vars = [
+        "PRTG_API_TOKEN",
+        "WAKATIME_API_KEY",
+    ]
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    assert not missing_vars, f"Missing environment variables: {', '.join(missing_vars)}"
+    logging.debug(required_vars)
+    assert required_vars['PRTG_API_TOKEN'] is not None
 
 @skipIf(True, "Will fail if permissions not set, see utils.py for details")
 def test_get_ping():

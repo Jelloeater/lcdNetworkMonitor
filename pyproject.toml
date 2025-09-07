@@ -6,10 +6,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "cap1xxx>=0.1.4",
-    "dotenvx-py",
+    "dotenv>=0.9.9",
     "logging>=0.4.9.6",
     "ping3>=4.0.8",
     "pyping>=0.0.6",
+    "pytest-dotenv>=0.5.2",
     "requests>=2.25.1",
     "rpi-gpio>=0.7.1",
     "sn3218>=2.0.0",
@@ -20,21 +21,20 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
+    "python-dotenv",
     "ruff>=0.9.6",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = "test/"
+testpaths = "tests/"
 log_cli = true
 log_cli_level = "DEBUG"
 log_cli_format = "[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(funcName)s():%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 
+
 [tool.coverage.run]
 omit = [
     "tests/*",
 ]
-
-[tool.uv.sources]
-dotenvx-py = { git = "https://github.com/linux-china/dotenvx-py.git" }
