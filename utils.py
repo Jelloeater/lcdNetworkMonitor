@@ -7,14 +7,18 @@ import os
 import requests
 
 from dotenv import load_dotenv
+
 load_dotenv()
+
 
 def get_ping(ip):
     try:
         p = ping3.ping(ip)
         p = round(p * 1000)
     except PermissionError:
-        logging.exception("PermissionError: You need to run this script with root privileges to use ping.")
+        logging.exception(
+            "PermissionError: You need to run this script with root privileges to use ping."
+        )
         # Try this
         # sudo sysctl net.ipv4.ping_group_range='0 4294967295'; # Others
         # sudo sysctl net.ipv4.ping_group_range='0   2147483647' # Debian based
@@ -32,13 +36,14 @@ def get_ping(ip):
 
 
 def get_time_iso():
-
     import time
     import calendar
+
     utc = time.gmtime(time.time())
 
     out = f"{utc.tm_mon:02d}-{utc.tm_mday:02d} {calendar.day_abbr[utc.tm_wday]} {utc.tm_hour:02d}:{utc.tm_min:02d}"
     return out
+
 
 def get_wakatime_api_key():
     api_key = os.getenv("WAKATIME_API_KEY")
@@ -51,9 +56,12 @@ def get_wakatime_api_key():
                     if line.startswith("api_key"):
                         return line.split("=")[1].strip()
         else:
-            logging.error("WAKATIME_API_KEY environment variable is not set and .wakatime.cfg file not found.")
+            logging.error(
+                "WAKATIME_API_KEY environment variable is not set and .wakatime.cfg file not found."
+            )
             raise ValueError("WAKATIME_API_KEY environment variable is not set.")
     return api_key
+
 
 def get_wakatime():
     api_key = get_wakatime_api_key()
@@ -65,9 +73,7 @@ def get_wakatime():
     headers = {"Authorization": f"Basic {b64_api_key}"}
     url = f"https://wakatime.com/api/v1/users/current/durations?date={today}"
 
-    response = requests.get(
-        url, headers=headers
-    )
+    response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         data = response.json()
@@ -76,7 +82,10 @@ def get_wakatime():
         return f"{total_seconds / 3600:.2f}"
     else:
         logging.exception(f"Error: {response.status_code} {response.text}")
-        raise Exception(f"Error fetching WakaTime data: {response.status_code} {response.text}")
+        raise Exception(
+            f"Error fetching WakaTime data: {response.status_code} {response.text}"
+        )
+
 
 # TODO Get Weather from wttr.in
 def get_weather():
@@ -87,7 +96,9 @@ def get_weather():
             # Extract the current temperature in Celsius
             current_temp = response_json["current_condition"][0]["temp_F"]
             # Extract the weather description
-            weather_desc = response_json["current_condition"][0]["weatherDesc"][0]["value"]
+            weather_desc = response_json["current_condition"][0]["weatherDesc"][0][
+                "value"
+            ]
             # Format the output
             return f"{current_temp}°, {weather_desc}"
         else:
@@ -96,6 +107,7 @@ def get_weather():
     except requests.RequestException:
         logging.exception("An error occurred while fetching weather data.")
         return "Weather data not available"
+
 
 def get_public_ip():
     try:
@@ -122,7 +134,8 @@ def get_prtg_sensor(sensor_id):
 
     url = f"https://{os.getenv('PRTG_HOSTNAME')}/api/getsensordetails.json?id={sensor_id}&apitoken={os.getenv('PRTG_API_TOKEN')}"
     response = requests.get(
-        url=url,verify=False,  # Disable SSL verification if needed
+        url=url,
+        verify=False,  # Disable SSL verification if needed
     )
     logging.debug(response)
     if response.status_code == 200:
@@ -131,6 +144,7 @@ def get_prtg_sensor(sensor_id):
     else:
         logging.exception(f"Error: {response.status_code} {response.text}")
         raise Exception(f"Error fetching data: {response.status_code} {response.text}")
+
 
 def get_prtg_sensor_data(sensor_id, channel_id, time_delta):
     TOKEN_NAME = "PRTG_API_TOKEN"
@@ -145,7 +159,8 @@ def get_prtg_sensor_data(sensor_id, channel_id, time_delta):
     edate = f"{end}"
     url = f"https://{os.getenv('PRTG_HOSTNAME')}/api/historicdata.json?id={sensor_id}&avg=0&sdate={sdate}&edate={edate}&usecaption=1 &apitoken={os.getenv('PRTG_API_TOKEN')}"
     response = requests.get(
-        url=url,verify=False,  # Disable SSL verification if needed
+        url=url,
+        verify=False,  # Disable SSL verification if needed
     )
     logging.debug(response)
     if response.status_code == 200:
@@ -157,7 +172,7 @@ def get_prtg_sensor_data(sensor_id, channel_id, time_delta):
         raise Exception(f"Error fetching data: {response.status_code} {response.text}")
 
 
-def get_prtg_sensor_data_value_last(sensor_id,channel_id,field_name):
-    time_delta=300 # Need to get at least 5 minutes of data
-    data = get_prtg_sensor_data(sensor_id,channel_id,time_delta)["histdata"]
+def get_prtg_sensor_data_value_last(sensor_id, channel_id, field_name):
+    time_delta = 300  # Need to get at least 5 minutes of data
+    data = get_prtg_sensor_data(sensor_id, channel_id, time_delta)["histdata"]
     return data[-1][field_name]
