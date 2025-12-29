@@ -87,3 +87,40 @@ def get_wakatime():
         raise Exception(
             f"Error fetching WakaTime data: {response.status_code} {response.text}"
         )
+
+
+def get_inoreader_unread():
+    """
+
+    Fetches total unread count using INOREADER_TOKEN env var.
+
+    """
+
+    token = os.getenv("INOREADER_TOKEN")
+
+    if not token:
+        raise ValueError("Environment variable 'INOREADER_TOKEN' is not set.")
+
+    url = "https://www.inoreader.com/reader/api/0/unread-count"
+
+    headers = {"Authorization": f"Bearer {token}"}
+
+    try:
+        response = requests.get(url, headers=headers)
+
+        response.raise_for_status()
+
+        # Generator expression to find the global reading list count
+
+        counts = response.json().get("unreadcounts", [])
+
+        total = next((i["count"] for i in counts if "reading-list" in i["id"]), 0)
+
+        return total
+
+    except requests.exceptions.RequestException as e:
+        return f"API Error: {e}"
+
+
+if __name__ == "__main__":
+    print(get_inoreader_unread())
