@@ -43,6 +43,7 @@ def test_time_iso():
 def test_wakatime():
     # Test if the function returns a string
     response = utils.get_wakatime()
+    logging.debug(response)
     assert isinstance(response, str), "Response should be a string"
     assert len(response) > 0, "Response should not be empty"
     # Additional checks can be added based on expected WakaTime output format
