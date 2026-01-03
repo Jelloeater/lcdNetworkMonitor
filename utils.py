@@ -73,15 +73,15 @@ def get_wakatime():
     b64_api_key = base64.b64encode(api_key.encode()).decode()
 
     headers = {"Authorization": f"Basic {b64_api_key}"}
-    url = f"https://wakatime.com/api/v1/users/current/durations?date={today}"
+    url = "https://wakatime.com/api/v1/users/current/summaries?range=today"
 
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        data = response.json()
+        data = response.json()["cumulative_total"]["seconds"]
         # Sum all durations to get total seconds
-        total_seconds = sum(item["duration"] for item in data["data"])
-        return f"{total_seconds / 3600:.2f}"
+
+        return f"{data / 3600:.2f}"
     else:
         logging.exception(f"Error: {response.status_code} {response.text}")
         raise Exception(

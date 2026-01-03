@@ -104,7 +104,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "cap1xxx" },
-    { name = "logging" },
     { name = "ping3" },
     { name = "pyping" },
     { name = "python-dotenv" },
@@ -117,6 +116,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "logging" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -124,7 +124,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cap1xxx", specifier = ">=0.1.4" },
-    { name = "logging", specifier = ">=0.4.9.6" },
     { name = "ping3", specifier = ">=4.0.8" },
     { name = "pyping", specifier = ">=0.0.6" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
@@ -137,6 +136,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "logging", specifier = ">=0.4.9.6" },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "ruff", specifier = ">=0.9.6" },
 ]
