@@ -3,6 +3,15 @@ revision = 1
 requires-python = ">=3.11"
 
 [[package]]
+name = "cachetools"
+version = "6.2.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/bc/1d/ede8680603f6016887c062a2cf4fc8fdba905866a3ab8831aa8aa651320c/cachetools-6.2.4.tar.gz", hash = "sha256:82c5c05585e70b6ba2d3ae09ea60b79548872185d2f24ae1f2709d37299fd607", size = 31731 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/fc/1d7b80d0eb7b714984ce40efc78859c022cd930e402f599d8ca9e39c78a4/cachetools-6.2.4-py3-none-any.whl", hash = "sha256:69a7a52634fed8b8bf6e24a050fb60bff1c9bd8f6d24572b99c32d4e71e62a51", size = 11551 },
+]
+
+[[package]]
 name = "cap1xxx"
 version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -103,6 +112,7 @@ name = "lcdnetworkmonitor"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "cachetools" },
     { name = "cap1xxx" },
     { name = "ping3" },
     { name = "pyping" },
@@ -119,10 +129,12 @@ dev = [
     { name = "logging" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "types-cachetools" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "cachetools", specifier = ">=6.2.4" },
     { name = "cap1xxx", specifier = ">=0.1.4" },
     { name = "ping3", specifier = ">=4.0.8" },
     { name = "pyping", specifier = ">=0.0.6" },
@@ -139,6 +151,7 @@ dev = [
     { name = "logging", specifier = ">=0.4.9.6" },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "ruff", specifier = ">=0.9.6" },
+    { name = "types-cachetools", specifier = ">=6.2.0.20251022" },
 ]
 
 [[package]]
@@ -286,6 +299,15 @@ dependencies = [
     { name = "spidev" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/69/fa/19c7651e8ed1c60e30efb3ea2b6f6cd5bedde4f29da1b5942a4058d3710b/st7036-1.4.4.tar.gz", hash = "sha256:b48ffee4edcd3837c000bb3f28f3c9e45747b10abc061b5fde0ccd783901fab6", size = 5098 }
+
+[[package]]
+name = "types-cachetools"
+version = "6.2.0.20251022"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/a8/f9bcc7f1be63af43ef0170a773e2d88817bcc7c9d8769f2228c802826efe/types_cachetools-6.2.0.20251022.tar.gz", hash = "sha256:f1d3c736f0f741e89ec10f0e1b0138625023e21eb33603a930c149e0318c0cef", size = 9608 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/2d/8d821ed80f6c2c5b427f650bf4dc25b80676ed63d03388e4b637d2557107/types_cachetools-6.2.0.20251022-py3-none-any.whl", hash = "sha256:698eb17b8f16b661b90624708b6915f33dbac2d185db499ed57e4997e7962cad", size = 9341 },
+]
 
 [[package]]
 name = "urllib3"

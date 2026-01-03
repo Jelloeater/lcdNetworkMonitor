@@ -68,7 +68,7 @@ class UpdateScreen:
         C2 = SPACE * 2 + START
         C3 = SPACE * 3 + START
         lcd.set_cursor_position(0, 0)
-        lcd.write("W&")
+        lcd.write("WAN")
         # lcd.set_cursor_position(0, 1)
         # lcd.write("Router")
         # lcd.set_cursor_position(0, 2)
@@ -83,8 +83,10 @@ class UpdateScreen:
         lcd.set_cursor_position(C3, 0)
         lcd.write(Actions.ping_server("8.8.8.8"))
 
-        # lcd.set_cursor_position(0, 1)
-        # lcd.write(utils.get_wakatime())
+        lcd.set_cursor_position(0, 1)
+        lcd.write("WT")
+        lcd.set_cursor_position(3, 1)
+        lcd.write(utils.get_wakatime())
 
         lcd.set_cursor_position(0, 2)
         lcd.write(utils.get_time_iso())
