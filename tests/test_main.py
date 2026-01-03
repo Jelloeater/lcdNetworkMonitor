@@ -47,3 +47,11 @@ def test_wakatime():
     assert isinstance(response, str), "Response should be a string"
     assert len(response) > 0, "Response should not be empty"
     # Additional checks can be added based on expected WakaTime output format
+
+
+def test_get_inoreader_unread():
+    # Test if the function returns an integer
+    response = utils.get_inoreader_unread()
+    logging.debug(response)
+    assert isinstance(response, int), "Response should be an integer"
+    assert response >= 0, "Unread count should be non-negative"
