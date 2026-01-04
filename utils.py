@@ -103,7 +103,5 @@ def get_wakatime():
 
         return f"{data / 3600:.2f}"
     else:
-        logging.exception(f"Error: {response.status_code} {response.text}")
-        raise Exception(
-            f"Error fetching WakaTime data: {response.status_code} {response.text}"
-        )
+        logging.exception(f"{response.status_code} {response.text}")
+        return f"{response.status_code} {response.text}"

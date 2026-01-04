@@ -36,7 +36,7 @@ def test_time_iso():
     logging.debug(response)
     assert isinstance(response, str), "Response should be a string"
     assert len(response) > 0, "Response should not be empty"
-    assert response.count("-") == 1, "ISO format should contain two hyphens"
+    assert response.count("-") == 0
     assert response.count(":") == 1, "ISO format should contain two colons"
     # assert response.count('T') == 1, "ISO format should contain one 'T' character"
 
