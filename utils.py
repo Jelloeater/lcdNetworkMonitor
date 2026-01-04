@@ -40,11 +40,27 @@ def get_ping(ip):
 
 def get_time_iso():
     import time
+
+    now = time.gmtime(time.time())
+
+    out = f"{now.tm_hour:02d}:{now.tm_min:02d}"
+    return out
+    # return datetime.now().isoformat(timespec='minutes')
+
+
+def get_time_local():
+    import time
     import calendar
 
-    utc = time.gmtime(time.time())
+    now = time.localtime(time.time())
+    if now.tm_hour > 12:
+        ampm = "p"
+        hour = now.tm_hour - 12
+    else:
+        ampm = "a"
+        hour = now.tm_hour
 
-    out = f"{utc.tm_mon:02d}-{utc.tm_mday:02d} {calendar.day_abbr[utc.tm_wday]} {utc.tm_hour:02d}:{utc.tm_min:02d}"
+    out = f"{now.tm_mon:02d}-{now.tm_mday:02d} {calendar.day_abbr[now.tm_wday]} {hour:02}:{now.tm_min:02d}{ampm}"
     return out
     # return datetime.now().isoformat(timespec='minutes')
 

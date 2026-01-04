@@ -33,11 +33,20 @@ def test_get_ping():
 def test_time_iso():
     # Test if the function returns a string in ISO format
     response = utils.get_time_iso()
+    logging.debug(response)
     assert isinstance(response, str), "Response should be a string"
     assert len(response) > 0, "Response should not be empty"
     assert response.count("-") == 1, "ISO format should contain two hyphens"
     assert response.count(":") == 1, "ISO format should contain two colons"
     # assert response.count('T') == 1, "ISO format should contain one 'T' character"
+
+
+def test_time():
+    # Test if the function returns a string in ISO format
+    response = utils.get_time_local()
+    logging.debug(response)
+    assert isinstance(response, str), "Response should be a string"
+    assert len(response) > 0, "Response should not be empty"
 
 
 def test_wakatime():
