@@ -2,9 +2,8 @@ import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
-
-# ...existing code...
 from memcache_client import MemcacheClient
+import uvicorn
 
 app = FastAPI(title="Memcached FastAPI Writer")
 
@@ -64,3 +63,20 @@ def get_value(key: str):
 def health():
     # simple health check
     return {"status": "ok", "memcached": f"{MEMCACHED_HOST}:{MEMCACHED_PORT}"}
+
+
+if __name__ == "__main__":
+    # Run the FastAPI app with uvicorn when executed as a script.
+    # Host, port, log level, and reload flag are configurable via environment variables.
+
+    host = os.getenv("HOST", "0.0.0.0")
+    try:
+        port = int(os.getenv("PORT", "8000"))
+    except ValueError:
+        port = 8000
+
+    log_level = os.getenv("LOG_LEVEL", "info")
+    reload_env = os.getenv("RELOAD", "false").lower()
+    reload = reload_env in ("1", "true", "yes")
+
+    uvicorn.run(app, host=host, port=port, log_level=log_level, reload=reload)
