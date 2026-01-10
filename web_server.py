@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from typing import Optional
 from memcache_client import MemcacheClient
 import uvicorn
-
-app = FastAPI(title="Memcached FastAPI Writer")
+from contextlib import asynccontextmanager
+import argparse
 
 MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", "127.0.0.1")
 MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", "11211"))
@@ -13,24 +13,26 @@ MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", "11211"))
 mc: Optional[MemcacheClient] = None
 
 
+@asynccontextmanager
+async def lifespan(app):
+    """Lifespan context manager: initialize memcache client on startup and close on shutdown."""
+    global mc
+    mc = MemcacheClient(host=MEMCACHED_HOST, port=MEMCACHED_PORT)
+    try:
+        yield
+    finally:
+        if mc:
+            mc.close()
+            mc = None
+
+
+app = FastAPI(title="Memcached FastAPI Writer", lifespan=lifespan)
+
+
 class SetRequest(BaseModel):
     key: str
     value: str
     expire: Optional[int] = 0
-
-
-@app.on_event("startup")
-def startup_event():
-    global mc
-    mc = MemcacheClient(host=MEMCACHED_HOST, port=MEMCACHED_PORT)
-
-
-@app.on_event("shutdown")
-def shutdown_event():
-    global mc
-    if mc:
-        mc.close()
-        mc = None
 
 
 @app.post("/set")
@@ -67,16 +69,32 @@ def health():
 
 if __name__ == "__main__":
     # Run the FastAPI app with uvicorn when executed as a script.
-    # Host, port, log level, and reload flag are configurable via environment variables.
+    # Host, port, log level, and reload flag are configurable via environment variables
+    # and via CLI flags (CLI overrides env vars).
 
-    host = os.getenv("HOST", "0.0.0.0")
-    try:
-        port = int(os.getenv("PORT", "8000"))
-    except ValueError:
-        port = 8000
+    parser = argparse.ArgumentParser(description="Run the FastAPI memcache web server")
+    parser.add_argument(
+        "--host", default=os.getenv("HOST", "0.0.0.0"), help="Host to bind to"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("PORT", "8000")),
+        help="Port to bind to",
+    )
+    parser.add_argument(
+        "--log-level", default=os.getenv("LOG_LEVEL", "info"), help="Uvicorn log level"
+    )
+    parser.add_argument(
+        "--reload", action="store_true", help="Enable auto-reload (development)"
+    )
+    args = parser.parse_args()
 
-    log_level = os.getenv("LOG_LEVEL", "info")
-    reload_env = os.getenv("RELOAD", "false").lower()
-    reload = reload_env in ("1", "true", "yes")
+    host = args.host
+    port = args.port
+    log_level = args.log_level
+    reload = args.reload or (
+        os.getenv("RELOAD", "false").lower() in ("1", "true", "yes")
+    )
 
     uvicorn.run(app, host=host, port=port, log_level=log_level, reload=reload)
