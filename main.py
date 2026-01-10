@@ -6,6 +6,7 @@ import sys
 from time import sleep
 
 import libs
+import memcache_client
 import utils
 from dothat import lcd
 from utils import get_ping
@@ -100,6 +101,14 @@ class UpdateScreen:
         # lcd.write(ping_server("8.8.8.8"))
         # lcd.set_cursor_position(C3, 2)
         # lcd.write(ping_server("jelloeater.damnserver.com"))
+
+        try:
+            lcd.set_cursor_position(10, 1)
+            lcd.write(f"{memcache_client.MemcacheClient().get('status')}")
+        except Exception as e:
+            logging.error(f"Memcache read error: {e}")
+            lcd.set_cursor_position(10, 1)
+            lcd.write("MC Err")
 
         sleep(0.5)
         libs.Screen.idle()
