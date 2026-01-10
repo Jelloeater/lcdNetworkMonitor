@@ -85,30 +85,32 @@ class UpdateScreen:
         lcd.set_cursor_position(C3, 0)
         lcd.write(Actions.ping_server("8.8.8.8"))
 
-        lcd.set_cursor_position(0, 1)
+        lcd.set_cursor_position(0, 2)
         lcd.write(f"WT {utils.get_wakatime()}")
 
-        lcd.set_cursor_position(0, 2)
+        lcd.set_cursor_position(C2 + 1, 2)
         lcd.write(utils.get_time_local())
 
-        # lcd.set_cursor_position(C2, 0)
-        # lcd.write(ping_server("8.8.8.8"))
-        # lcd.set_cursor_position(C2, 2)
-        # lcd.write(ping_server("jelloeater.damnserver.com"))
-        #
-
-        # lcd.set_cursor_position(C3, 0)
-        # lcd.write(ping_server("8.8.8.8"))
-        # lcd.set_cursor_position(C3, 2)
-        # lcd.write(ping_server("jelloeater.damnserver.com"))
-
         try:
-            lcd.set_cursor_position(10, 1)
+            lcd.set_cursor_position(0, 1)
+            if memcache_client.MemcacheClient().get("status") == "":
+                lcd.write("                ")  # 16 Chars to clear line
             lcd.write(f"{memcache_client.MemcacheClient().get('status')}")
+            from dothat import backlight
+
+            backlight.set_graph(int(memcache_client.MemcacheClient().get("graph")))
+            r = int(memcache_client.MemcacheClient().get("r"))
+            g = int(memcache_client.MemcacheClient().get("g"))
+            b = int(memcache_client.MemcacheClient().get("b"))
+            backlight.rgb(r, g, b)
         except Exception as e:
             logging.error(f"Memcache read error: {e}")
-            lcd.set_cursor_position(10, 1)
+            lcd.set_cursor_position(0, 1)
             lcd.write("MC Err")
+            memcache_client.MemcacheClient().set("r", "0")
+            memcache_client.MemcacheClient().set("g", "0")
+            memcache_client.MemcacheClient().set("b", "0")
+            memcache_client.MemcacheClient().set("graph", "0")
 
         sleep(0.5)
         libs.Screen.idle()

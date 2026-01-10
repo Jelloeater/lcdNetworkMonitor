@@ -50,7 +50,6 @@ def get_time_iso():
 
 def get_time_local():
     import time
-    import calendar
 
     now = time.localtime(time.time())
     if now.tm_hour > 12:
@@ -59,8 +58,8 @@ def get_time_local():
     else:
         ampm = "a"
         hour = now.tm_hour
-
-    out = f"{now.tm_mon:02d}-{now.tm_mday:02d} {calendar.day_abbr[now.tm_wday]} {hour:02}:{now.tm_min:02d}{ampm}"
+    out = f"{hour:02}:{now.tm_min:02d}{ampm}"
+    # out = f"{now.tm_mon:02d}-{now.tm_mday:02d} {calendar.day_abbr[now.tm_wday]} {hour:02}:{now.tm_min:02d}{ampm}"
     return out
     # return datetime.now().isoformat(timespec='minutes')
 
