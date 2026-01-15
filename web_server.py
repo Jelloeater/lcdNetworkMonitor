@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Union
 from memcache_client import MemcacheClient
 import uvicorn
 from contextlib import asynccontextmanager
@@ -9,70 +9,94 @@ import argparse
 
 MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", "127.0.0.1")
 MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", "11211"))
+VALKEY_HOST = os.getenv("VALKEY_HOST", "127.0.0.1")
+VALKEY_PORT = int(os.getenv("VALKEY_PORT", "12345"))
 
-mc: Optional[MemcacheClient] = None
+class ValkeyClient:
+    """Stub Valkey client."""
+    def __init__(self, host: str, port: int):
+        self.host = host
+        self.port = port
+        self.storage = {}
 
+    def set(self, key: str, value: str, expire: int = 0) -> bool:
+        self.storage[key] = value
+        return True
+
+    def get(self, key: str) -> Optional[str]:
+        return self.storage.get(key)
+
+    def close(self):
+        pass
+
+class Backend:
+    def __init__(self, use_valkey=False):
+        if use_valkey:
+            self.client = ValkeyClient(host=VALKEY_HOST, port=VALKEY_PORT)
+        else:
+            self.client = MemcacheClient(host=MEMCACHED_HOST, port=MEMCACHED_PORT)
+
+    def set(self, key: str, value: str, expire: int = 0) -> bool:
+        return self.client.set(key, value, expire)
+
+    def get(self, key: str) -> Optional[str]:
+        return self.client.get(key)
+
+    def close(self):
+        self.client.close()
+
+backend: Optional[Backend] = None
 
 @asynccontextmanager
 async def lifespan(app):
-    """Lifespan context manager: initialize memcache client on startup and close on shutdown."""
-    global mc
-    mc = MemcacheClient(host=MEMCACHED_HOST, port=MEMCACHED_PORT)
+    """Lifespan context manager: initialize backend on startup and close on shutdown."""
+    global backend
+    use_valkey = os.getenv("USE_VALKEY", "false").lower() in ("1", "true", "yes")
+    backend = Backend(use_valkey=use_valkey)
     try:
         yield
     finally:
-        if mc:
-            mc.close()
-            mc = None
+        if backend:
+            backend.close()
+            backend = None
 
-
-app = FastAPI(title="Memcached FastAPI Writer", lifespan=lifespan)
-
+app = FastAPI(title="Flexible Backend FastAPI", lifespan=lifespan)
 
 class SetRequest(BaseModel):
     key: str
     value: str
     expire: Optional[int] = 0
 
-
 @app.post("/set")
 def set_value(req: SetRequest):
-    global mc
-    if mc is None:
-        raise HTTPException(status_code=500, detail="Memcache client not initialized")
+    global backend
+    if backend is None:
+        raise HTTPException(status_code=500, detail="Backend not initialized")
     try:
-        ok = mc.set(req.key, req.value, expire=req.expire or 0)
+        ok = backend.set(req.key, req.value, expire=req.expire or 0)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Memcache set error: {e}")
+        raise HTTPException(status_code=500, detail=f"Backend set error: {e}")
     return {"stored": bool(ok)}
-
 
 @app.get("/get/{key}")
 def get_value(key: str):
-    global mc
-    if mc is None:
-        raise HTTPException(status_code=500, detail="Memcache client not initialized")
+    global backend
+    if backend is None:
+        raise HTTPException(status_code=500, detail="Backend not initialized")
     try:
-        val = mc.get(key)
+        val = backend.get(key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Memcache get error: {e}")
+        raise HTTPException(status_code=500, detail=f"Backend get error: {e}")
     if val is None:
         raise HTTPException(status_code=404, detail="Key not found")
     return {"key": key, "value": val}
 
-
 @app.get("/health")
 def health():
-    # simple health check
-    return {"status": "ok", "memcached": f"{MEMCACHED_HOST}:{MEMCACHED_PORT}"}
-
+    return {"status": "ok", "backend": "valkey" if os.getenv("USE_VALKEY", "false").lower() in ("1", "true", "yes") else "memcache"}
 
 if __name__ == "__main__":
-    # Run the FastAPI app with uvicorn when executed as a script.
-    # Host, port, log level, and reload flag are configurable via environment variables
-    # and via CLI flags (CLI overrides env vars).
-
-    parser = argparse.ArgumentParser(description="Run the FastAPI memcache web server")
+    parser = argparse.ArgumentParser(description="Run the FastAPI backend web server")
     parser.add_argument(
         "--host", default=os.getenv("HOST", "0.0.0.0"), help="Host to bind to"
     )
