@@ -20,6 +20,7 @@ class ValkeyClient:
         self.storage = {}
 
     def set(self, key: str, value: str, expire: int = 0) -> bool:
+        # NOTE: The 'expire' parameter is ignored in this stub implementation.
         self.storage[key] = value
         return True
 
