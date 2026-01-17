@@ -1,37 +1,42 @@
 import os
+
+import logging
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional, Union
+from typing import Optional
 from memcache_client import MemcacheClient
 import uvicorn
 from contextlib import asynccontextmanager
 import argparse
+import valkey
 
 MEMCACHED_HOST = os.getenv("MEMCACHED_HOST", "127.0.0.1")
 MEMCACHED_PORT = int(os.getenv("MEMCACHED_PORT", "11211"))
 VALKEY_HOST = os.getenv("VALKEY_HOST", "127.0.0.1")
-VALKEY_PORT = int(os.getenv("VALKEY_PORT", "12345"))
+VALKEY_PORT = int(os.getenv("VALKEY_PORT", "6379"))
+
 
 class ValkeyClient:
     """Stub Valkey client."""
-    def __init__(self, host: str, port: int):
-        self.host = host
-        self.port = port
-        self.storage = {}
 
-    def set(self, key: str, value: str, expire: int = 0) -> bool:
+    def __init__(self, host: str, port: int):
+        self.storage = valkey.Valkey(host=host, port=port)
+        self.storage.ping()  # Test connection
+
+    def set(self, key: str, value: str) -> bool:
         # NOTE: The 'expire' parameter is ignored in this stub implementation.
-        self.storage[key] = value
+        self.storage.set(key, value)
         return True
 
     def get(self, key: str) -> Optional[str]:
         return self.storage.get(key)
 
     def close(self):
-        pass
+        self.storage.close()
+
 
 class Backend:
-    def __init__(self, use_valkey=False):
+    def __init__(self, use_valkey):
         if use_valkey:
             self.client = ValkeyClient(host=VALKEY_HOST, port=VALKEY_PORT)
         else:
@@ -46,13 +51,16 @@ class Backend:
     def close(self):
         self.client.close()
 
+
 backend: Optional[Backend] = None
+
 
 @asynccontextmanager
 async def lifespan(app):
     """Lifespan context manager: initialize backend on startup and close on shutdown."""
     global backend
     use_valkey = os.getenv("USE_VALKEY", "false").lower() in ("1", "true", "yes")
+    logging.info(use_valkey)
     backend = Backend(use_valkey=use_valkey)
     try:
         yield
@@ -61,12 +69,15 @@ async def lifespan(app):
             backend.close()
             backend = None
 
+
 app = FastAPI(title="Flexible Backend FastAPI", lifespan=lifespan)
+
 
 class SetRequest(BaseModel):
     key: str
     value: str
     expire: Optional[int] = 0
+
 
 @app.post("/set")
 def set_value(req: SetRequest):
@@ -78,6 +89,7 @@ def set_value(req: SetRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Backend set error: {e}")
     return {"stored": bool(ok)}
+
 
 @app.get("/get/{key}")
 def get_value(key: str):
@@ -92,9 +104,16 @@ def get_value(key: str):
         raise HTTPException(status_code=404, detail="Key not found")
     return {"key": key, "value": val}
 
+
 @app.get("/health")
 def health():
-    return {"status": "ok", "backend": "valkey" if os.getenv("USE_VALKEY", "false").lower() in ("1", "true", "yes") else "memcache"}
+    return {
+        "status": "ok",
+        "backend": "valkey"
+        if os.getenv("USE_VALKEY", "false").lower() in ("1", "true", "yes")
+        else "memcache",
+    }
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the FastAPI backend web server")

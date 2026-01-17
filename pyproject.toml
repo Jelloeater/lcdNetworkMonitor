@@ -18,6 +18,7 @@ dependencies = [
     "spidev>=3.6",
     "st7036>=1.4.4",
     "uvicorn[standard]>=0.40.0",
+    "valkey>=6.1.1",
 ]
 
 [dependency-groups]
