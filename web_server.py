@@ -61,6 +61,17 @@ def get_value(key: str):
     return {"key": key, "value": val}
 
 
+@app.get("/status/{req}")
+def set_screen(req: str):
+    global mc
+    if mc is None:
+        raise HTTPException(status_code=500, detail="Memcache client not initialized")
+    try:
+        return mc.set(key="status", value=req, expire=0)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Memcache get error: {e}")
+
+
 @app.get("/health")
 def health():
     # simple health check
