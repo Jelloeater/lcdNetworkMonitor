@@ -84,6 +84,35 @@ def get_wakatime_api_key():
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=300))
+def get_isp():
+    try:
+        response = requests.get("http://ip-api.com/json/", timeout=2)
+        if response.status_code == 200:
+            data = response.json()
+            ip = data.get("query", "")
+            if ip:
+                parts = ip.split(".")
+                return ".".join(parts[:2]) if len(parts) >= 2 else ip[:4]
+    except Exception:
+        pass
+    return "WAN"
+
+
+def get_wan_ip():
+    """Get WAN IP - returns first octet for display"""
+    try:
+        response = requests.get("https://ifconfig.me", timeout=3)
+        if response.status_code == 200:
+            ip = response.text.strip()
+            if ip and "." in ip:
+                parts = ip.split(".")
+                return parts[0]
+    except Exception:
+        pass
+    return "WAN"
+
+
+@cached(cache=TTLCache(maxsize=1, ttl=300))
 def get_wakatime():
     api_key = get_wakatime_api_key()
     if not api_key:

@@ -3,13 +3,14 @@
 import argparse
 import logging
 import sys
+import threading
 from time import sleep
 
 import libs
 import memcache_client
 import utils
 from dothat import lcd
-from utils import get_ping
+from utils import get_ping, get_wan_ip
 
 
 WARN_LIMIT = 250
@@ -21,6 +22,16 @@ class GVars:
     LED_BLUE = 0
     LED_TIMEOUT = 2
     LED_DAY_MODE = False
+    WAN_IP = "WAN"
+
+
+def update_wan_ip():
+    while True:
+        try:
+            GVars.WAN_IP = get_wan_ip()
+        except Exception:
+            pass
+        sleep(60)
 
 
 class Actions:
@@ -28,7 +39,7 @@ class Actions:
     def ping_server(ip):
         p = get_ping(ip)
         try:
-            if p > WARN_LIMIT:
+            if isinstance(p, (int, float)) and p > WARN_LIMIT:
                 libs.Screen.idle_warn()
         except:
             pass
@@ -70,7 +81,7 @@ class UpdateScreen:
         C2 = SPACE * 2 + START
         C3 = SPACE * 3 + START
         lcd.set_cursor_position(0, 0)
-        lcd.write("WAN")
+        lcd.write(GVars.WAN_IP)
         # lcd.set_cursor_position(0, 1)
         # lcd.write("Router")
         # lcd.set_cursor_position(0, 2)
@@ -86,7 +97,10 @@ class UpdateScreen:
         lcd.write(Actions.ping_server("8.8.8.8"))
 
         lcd.set_cursor_position(0, 2)
-        lcd.write(f"WT {utils.get_wakatime()}")
+        try:
+            lcd.write(f"WT {utils.get_wakatime()}")
+        except Exception:
+            lcd.write("WT ???")
 
         lcd.set_cursor_position(C2 + 1, 2)
         lcd.write(utils.get_time_local())
@@ -119,6 +133,14 @@ class UpdateScreen:
 def main():
     Bootstrap.setup_logging()
     libs.Screen.reset()
+
+    try:
+        GVars.WAN_IP = get_wan_ip()
+    except Exception:
+        pass
+
+    t = threading.Thread(target=update_wan_ip, daemon=True)
+    t.start()
 
     while True:  # Main Loop
         UpdateScreen.write_status_bar()
