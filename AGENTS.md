@@ -6,14 +6,14 @@ Raspberry Pi HAT LCD network monitor displaying WAN IP, ping times, wakatime, an
 ## Display Layout (16x2 LCD)
 ```
 [WAN] [ping1] [ping2] [ping3]
-[status]          [WT time] [clock]
+[WT   ] [msg    ]![##]
 ```
 
 ## Key Files
 
-- **main.py** - Main display loop, background WAN IP thread
-- **utils.py** - Utility functions (ping, WAN IP, wakatime, time)
-- **libs.py** - Screen helper functions
+- **main.py** - Main display loop, background WAN IP and ntfy threads
+- **utils.py** - Utility functions (ping, WAN IP, wakatime, ntfy, time)
+- **libs.py** - Screen helper functions, flash display
 - **memcache_client.py** - Status updates from web server
 - **web_server.py** - HTTP API for status updates
 
@@ -54,8 +54,30 @@ make  # Deploy to Pi (requires 'lcd' host in SSH config)
 - POST to `/status` to update LCD status line
 - memcache used for IPC between web server and main display
 
+### ntfy Notification Center
+- Subscribes to ntfy.sh topics specified in `NTFY_TOPICS` env var
+- Displays message count and latest message on row 2
+- Format: `[message text    ]![##]` where ## is count of messages
+- Message stays sticky for 15 minutes (longer for critical)
+- Count shows total messages across all topics in last X minutes
+
+#### Severity Handling
+- Topic prefixes determine severity: `critical-`, `warn-`, `info-`
+- On new message, display flashes:
+  - 1 green pulse = info
+  - 2 yellow pulses = warning  
+  - 3 red pulses = critical
+- Critical messages stick for 30 minutes, warning for 20 minutes
+
+#### Configuration (Environment Variables)
+- `NTFY_TOPICS` - Comma-separated list of topics (e.g., `alerts,home,critical-issues`)
+- `NTFY_WINDOW_MINUTES` - Time window for count (default: 60)
+- `NTFY_POLL_SECONDS` - How often to check (default: 30, hardcoded)
+
 ## Environment Variables
 - `WAKATIME_API_KEY` - Optional, for wakatime tracking
+- `NTFY_TOPICS` - Comma-separated list of ntfy topics to subscribe to
+- `NTFY_WINDOW_MINUTES` - Time window for message count (default: 60)
 - `.env` file is excluded from rsync (contains secrets)
 
 ## Common Issues

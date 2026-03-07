@@ -23,6 +23,13 @@ class GVars:
     LED_TIMEOUT = 2
     LED_DAY_MODE = False
     WAN_IP = "WAN"
+    # ntfy notification state
+    NTFY_MESSAGE = ""
+    NTFY_COUNT = 0
+    NTFY_LAST_ID = ""
+    NTFY_STICKY_UNTIL = 0
+    NTFY_ENABLED = False
+    NTFY_NEW_FLASH = ""
 
 
 def update_wan_ip():
@@ -32,6 +39,60 @@ def update_wan_ip():
         except Exception:
             pass
         sleep(60)
+
+
+def update_ntfy():
+    """Background thread to poll ntfy for messages"""
+    import time
+
+    while True:
+        try:
+            topics = utils.get_ntfy_topics()
+            if not topics:
+                GVars.NTFY_ENABLED = False
+                sleep(30)
+                continue
+
+            GVars.NTFY_ENABLED = True
+
+            # Get messages and count
+            messages, newest_id = utils.get_ntfy_messages(topics)
+            count = len(messages)
+
+            # Check for new message
+            new_message = False
+            if newest_id and newest_id != GVars.NTFY_LAST_ID:
+                # New message arrived!
+                GVars.NTFY_LAST_ID = newest_id
+                if messages:
+                    latest = messages[0]
+                    # Determine sticky time based on severity
+                    severity = latest.get("_severity", "info")
+                    sticky_mins = utils.get_sticky_minutes(severity)
+                    GVars.NTFY_STICKY_UNTIL = time.time() + (sticky_mins * 60)
+
+                    # Set message (truncate to 10 chars for LCD)
+                    msg_text = latest.get("message", "") or latest.get("title", "")
+                    GVars.NTFY_MESSAGE = msg_text[:10] if msg_text else "New"
+
+                    # Trigger flash based on severity
+                    new_message = True
+                    GVars.NTFY_NEW_FLASH = severity
+                    # Flash the display
+                    libs.flash_ntfy(severity)
+
+            # Update count always
+            GVars.NTFY_COUNT = count
+
+            # Check if sticky expired
+            if GVars.NTFY_STICKY_UNTIL > 0 and time.time() > GVars.NTFY_STICKY_UNTIL:
+                GVars.NTFY_MESSAGE = ""
+                GVars.NTFY_STICKY_UNTIL = 0
+
+        except Exception:
+            pass
+
+        sleep(30)
 
 
 class Actions:
@@ -102,6 +163,19 @@ class UpdateScreen:
         except Exception:
             lcd.write("WT ???")
 
+        # ntfy notification display
+        if GVars.NTFY_ENABLED:
+            # Show message (left) and count (right)
+            msg = GVars.NTFY_MESSAGE.ljust(10)[:10]
+            count = GVars.NTFY_COUNT
+            count_str = f"!{count:02d}" if count <= 99 else "!99"
+            lcd.set_cursor_position(8, 2)
+            lcd.write(f"{msg}{count_str}")
+        else:
+            # Clear ntfy area if not enabled
+            lcd.set_cursor_position(8, 2)
+            lcd.write("          ")
+
         lcd.set_cursor_position(C2 + 1, 2)
         lcd.write(utils.get_time_local())
 
@@ -141,6 +215,11 @@ def main():
 
     t = threading.Thread(target=update_wan_ip, daemon=True)
     t.start()
+
+    # Start ntfy background thread if topics configured
+    if utils.get_ntfy_topics():
+        t_ntfy = threading.Thread(target=update_ntfy, daemon=True)
+        t_ntfy.start()
 
     while True:  # Main Loop
         UpdateScreen.write_status_bar()

@@ -133,3 +133,85 @@ def get_wakatime():
     else:
         logging.exception(f"{response.status_code} {response.text}")
         return f"{response.status_code} {response.text}"
+
+
+def get_ntfy_topics():
+    """Get list of ntfy topics from env var"""
+    topics_str = os.getenv("NTFY_TOPICS", "")
+    if not topics_str:
+        return []
+    return [t.strip() for t in topics_str.split(",") if t.strip()]
+
+
+def get_ntfy_window_minutes():
+    """Get time window for message count from env var"""
+    return int(os.getenv("NTFY_WINDOW_MINUTES", "60"))
+
+
+def get_severity(topic):
+    """Determine severity from topic name prefix"""
+    if topic.startswith("critical-"):
+        return "critical"
+    if topic.startswith("warn-"):
+        return "warning"
+    return "info"
+
+
+def get_sticky_minutes(severity):
+    """Get sticky duration based on severity"""
+    if severity == "critical":
+        return 30
+    if severity == "warning":
+        return 20
+    return 15
+
+
+def get_ntfy_messages(topics, limit=50):
+    """Fetch recent messages from all subscribed topics"""
+    import time
+
+    if not topics:
+        return [], None
+
+    window_minutes = get_ntfy_window_minutes()
+    cutoff_time = time.time() - (window_minutes * 60)
+
+    all_messages = []
+    newest_id = None
+
+    for topic in topics:
+        try:
+            response = requests.get(
+                f"https://ntfy.sh/{topic}/json", params={"limit": limit}, timeout=5
+            )
+            if response.status_code == 200:
+                messages = response.json()
+                for msg in messages:
+                    msg_time = msg.get("time", 0)
+                    if msg_time >= cutoff_time:
+                        msg["_topic"] = topic
+                        msg["_severity"] = get_severity(topic)
+                        all_messages.append(msg)
+                        if newest_id is None or msg.get("id", "") > newest_id:
+                            newest_id = msg.get("id", "")
+        except Exception:
+            pass
+
+    # Sort by time descending (newest first)
+    all_messages.sort(key=lambda x: x.get("time", 0), reverse=True)
+
+    return all_messages, newest_id
+
+
+def get_ntfy_count(topics):
+    """Get count of messages in time window"""
+    messages, _ = get_ntfy_messages(topics)
+    return len(messages)
+
+
+def get_ntfy_latest_message(topics):
+    """Get the most recent message"""
+    messages, _ = get_ntfy_messages(topics, limit=1)
+    if messages:
+        return messages[0]
+    return None

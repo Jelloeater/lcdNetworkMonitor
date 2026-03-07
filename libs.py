@@ -99,3 +99,20 @@ class LedStrip:
     def set_global_brightness(brightness):
         """Brightness 0 - 15"""
         backlight.graph_set_led_duty(0, brightness)
+
+
+def flash_ntfy(severity):
+    """Flash display based on ntfy severity
+    - info: 1 pulse green
+    - warning: 2 pulses yellow
+    - critical: 3 pulses red
+    """
+    if severity == "critical":
+        # 3 red pulses
+        Screen.pulse_color(100, 0, 0, 3)
+    elif severity == "warning":
+        # 2 yellow pulses
+        Screen.pulse_color(100, 100, 0, 2)
+    else:
+        # 1 green pulse
+        Screen.pulse_color(0, 100, 0, 1)
