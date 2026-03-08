@@ -2,12 +2,14 @@
 
 import argparse
 import logging
+import os
 import sys
 import threading
 from time import sleep
 
 import libs
 import memcache_client
+import requests
 import utils
 from dothat import lcd
 from utils import get_ping, get_wan_ip
@@ -23,6 +25,12 @@ class GVars:
     LED_TIMEOUT = 2
     LED_DAY_MODE = False
     WAN_IP = "WAN"
+    # ntfy notification state (disabled by default - Pi cannot reach ntfy.sh)
+    NTFY_ENABLED = False  # Set to True to enable
+    NTFY_MESSAGE = ""
+    NTFY_COUNT = 0
+    NTFY_LAST_ID = ""
+    NTFY_STICKY_UNTIL = 0
 
 
 def update_wan_ip():
@@ -148,3 +156,84 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# =============================================================================
+# ntfy Notification Center (DISABLED BY DEFAULT - Pi cannot reach ntfy.sh)
+# To enable: Set GVars.NTFY_ENABLED = True in main() or via env var
+# =============================================================================
+
+
+def update_ntfy():
+    """Background thread to poll ntfy for messages - only runs if enabled"""
+    import time
+
+    while True:
+        try:
+            if not GVars.NTFY_ENABLED:
+                sleep(30)
+                continue
+
+            # Get topics from env
+            topics_str = os.getenv("NTFY_TOPICS", "")
+            if not topics_str:
+                sleep(30)
+                continue
+
+            topics = [t.strip() for t in topics_str.split(",") if t.strip()]
+            if not topics:
+                sleep(30)
+                continue
+
+            # Get messages
+            window_mins = int(os.getenv("NTFY_WINDOW_MINUTES", "60"))
+            cutoff = time.time() - (window_mins * 60)
+
+            all_msgs = []
+            newest_id = None
+
+            for topic in topics:
+                try:
+                    resp = requests.get(
+                        f"https://ntfy.sh/{topic}/json", params={"limit": 50}, timeout=3
+                    )
+                    if resp.status_code == 200:
+                        for msg in resp.json():
+                            if msg.get("time", 0) >= cutoff:
+                                all_msgs.append(msg)
+                                msg_id = msg.get("id", "")
+                                if newest_id is None or msg_id > newest_id:
+                                    newest_id = msg_id
+                except Exception:
+                    pass
+
+            # Update count
+            GVars.NTFY_COUNT = len(all_msgs)
+
+            # Check for new message
+            if newest_id and newest_id != GVars.NTFY_LAST_ID:
+                GVars.NTFY_LAST_ID = newest_id
+                if all_msgs:
+                    latest = all_msgs[0]
+                    msg_text = latest.get("message", "") or latest.get("title", "")
+                    GVars.NTFY_MESSAGE = msg_text[:8] if msg_text else ""
+
+                    # Determine sticky time
+                    topic = latest.get("topic", "")
+                    if topic.startswith("critical-"):
+                        sticky = 30
+                    elif topic.startswith("warn-"):
+                        sticky = 20
+                    else:
+                        sticky = 15
+                    GVars.NTFY_STICKY_UNTIL = time.time() + (sticky * 60)
+
+            # Check sticky expiry
+            if GVars.NTFY_STICKY_UNTIL > 0 and time.time() > GVars.NTFY_STICKY_UNTIL:
+                GVars.NTFY_MESSAGE = ""
+                GVars.NTFY_STICKY_UNTIL = 0
+
+        except Exception:
+            pass
+
+        sleep(30)
