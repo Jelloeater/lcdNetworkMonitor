@@ -110,7 +110,7 @@ class UpdateScreen:
         except Exception:
             lcd.write("WT ???")
 
-        lcd.set_cursor_position(C2 + 1, 2)
+        lcd.set_cursor_position(C2 - 1, 2)
         lcd.write(utils.get_time_local())
 
         try:

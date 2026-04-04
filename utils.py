@@ -10,6 +10,7 @@ import requests
 
 from dotenv import load_dotenv
 from cachetools import cached, TTLCache
+import calendar
 
 load_dotenv()  # Load environment variables from .env file if present
 
@@ -58,9 +59,9 @@ def get_time_local():
     else:
         ampm = "a"
         hour = now.tm_hour
-    out = f"{hour:02}:{now.tm_min:02d}{ampm}"
-    # out = f"{now.tm_mon:02d}-{now.tm_mday:02d} {calendar.day_abbr[now.tm_wday]} {hour:02}:{now.tm_min:02d}{ampm}"
-    return out
+    # out = f"{hour:02}:{now.tm_min:02d}{ampm}"
+    out = f"{now.tm_mon:02d}-{now.tm_mday:02d} {calendar.day_abbr[now.tm_wday]}"
+    return out[0:8]
     # return datetime.now().isoformat(timespec='minutes')
 
 
@@ -129,7 +130,7 @@ def get_wakatime():
         data = response.json()["cumulative_total"]["seconds"]
         # Sum all durations to get total seconds
 
-        return f"{data / 3600:.2f}"
+        return f"{data / 3600:.1f}"
     else:
         logging.exception(f"{response.status_code} {response.text}")
         return f"{response.status_code} {response.text}"
